@@ -5,11 +5,8 @@
             All Available Farm Produces
         </h1>
 
-        <div
-            wire:ignore
-            id="map"
-            class="w-full h-[80vh] rounded-xl border border-zinc-300 dark:border-zinc-700"
-        ></div>
+        <div wire:ignore id="map" class="w-full h-[80vh] rounded-xl border border-zinc-300 dark:border-zinc-700">
+        </div>
     </div>
 
     <script>
@@ -80,12 +77,23 @@
                             `;
                         });
 
-                        const farmerImage = farmer.image
-                            ? `/storage/${farmer.image}`
-                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(farmer.name)}&background=2563eb&color=fff`;
+                        const farmerImage = farmer.image ?
+                            `/storage/${farmer.image}` :
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(farmer.name)}&background=2563eb&color=fff`;
 
+                        const managerId = farmerProduces[0].user_id;
                         const popup = `
-                            <div class="w-[270px] text-sm">
+                            <div class="w-[270px] text-sm relative">
+
+                              <!-- Message Icon -->
+                                    <a
+                                        href="#"
+                                        onclick="startChat(${managerId})"
+                                        class="absolute top-1 right-1 text-blue-600 hover:text-blue-800"
+                                        title="Message seller"
+                                    >
+                                        💬
+                                    </a>
 
                                 <!-- Farmer Image -->
                                 <div class="flex justify-center mb-2">
@@ -125,7 +133,9 @@
 
                         L.marker([farmer.latitude, farmer.longitude])
                             .addTo(map)
-                            .bindPopup(popup, { maxWidth: 320 });
+                            .bindPopup(popup, {
+                                maxWidth: 320
+                            });
                     });
 
                     setTimeout(() => map.invalidateSize(), 300);
@@ -135,5 +145,27 @@
         document.addEventListener('DOMContentLoaded', initIlocosProductsMap);
         document.addEventListener('livewire:navigated', initIlocosProductsMap);
     </script>
+    
+    <script>
+        function startChat(managerId) {
+            fetch("{{ route('chat.start') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        user_id: managerId
+                    })
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                });
+        }
+    </script>
+ 
+
 
 </x-layouts.app>
