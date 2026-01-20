@@ -45,9 +45,16 @@ class FarmProduceController extends Controller
             'status' => ['nullable', 'in:draft,available,unavailable'],
         ]);
 
+
+        /* =========================
+        | Attach Manager (User)
+        ========================= */
+        $validated['user_id'] = auth()->id(); // 👈 MANAGER
+
         /* =========================
          | Handle Image Upload
          ========================= */
+
         if ($request->hasFile('image')) {
             $validated['image'] = $request
                 ->file('image')

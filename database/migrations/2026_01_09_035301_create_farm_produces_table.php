@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->engine = 'InnoDB';
 
             $table->bigIncrements('id');
+            $table->unsignedBigInteger('user_id'); //user who created this produce
             $table->unsignedBigInteger('farmer_id');
 
             $table->string('product');
@@ -37,6 +38,12 @@ return new class extends Migration {
             $table->string('status')->default('draft');
             $table->integer('reserved_quantity')->default(0);
             $table->timestamps();
+
+                        // Foreign keys
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
 
             $table->foreign('farmer_id')
                 ->references('id')

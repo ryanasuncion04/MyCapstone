@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class FarmProduce extends Model
 {
     protected $fillable = [
+        'user_id', //manager id for tracking
         'farmer_id',
         'product',
         'description',
@@ -18,6 +19,12 @@ class FarmProduce extends Model
         'image',
         'status',
     ];
+
+      // Manager (who created this produce)
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function farmer()
     {
