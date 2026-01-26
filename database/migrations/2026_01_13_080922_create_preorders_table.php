@@ -17,8 +17,9 @@ return new class extends Migration {
                 ->constrained('farm_produces')
                 ->cascadeOnDelete();
 
-            $table->string('customer_name');
-            $table->string('customer_contact')->nullable();
+            $table->foreignId('customer_id')
+            ->constrained('users')
+            ->cascadeOnDelete();
 
             $table->integer('quantity');
 

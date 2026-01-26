@@ -27,6 +27,9 @@
                 <flux:navlist.item icon="shopping-bag" :href="route('user.products')"
                     :current="request()->routeIs('user.products')" wire:navigate>{{ __('Products') }}
                 </flux:navlist.item>
+                <flux:navlist.item icon="shopping-cart" :href="route('customer.preorders.index')"
+                    :current="request()->routeIs('customer.preorders.*')" wire:navigate> {{ __('My Preorders') }}
+                </flux:navlist.item>
                 <flux:navlist.item icon="envelope" :href="route('chat.index')" :current="request()->routeIs('chat.*')"
                     wire:navigate>{{ __('Messages') }}</flux:navlist.item>
             </flux:navlist.group>

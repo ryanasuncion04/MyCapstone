@@ -140,6 +140,9 @@ Route::middleware(['auth'])
 Route::prefix('customer')->name('customer.')->middleware(['auth'])->group(function () {
     Route::get('preorders', [PreorderController::class, 'customerIndex'])->name('preorders.index');
     Route::delete('preorders/{preorder}/cancel', [PreorderController::class, 'cancel'])->name('preorders.cancel');
+    Route::get( 'preorders/create/{produce}',[PreorderController::class, 'create'])->name('preorders.create');
+    Route::post('preorders/store/{produce}',[PreorderController::class, 'store'])->name('preorders.store');
+
 });
 
 

@@ -21,7 +21,7 @@ class PreorderController extends Controller
         // dd($preorders);
 
         return view('manager.preorder.index', compact('preorders'));
-       
+
     }
 
     // ------------------------------
@@ -107,5 +107,51 @@ class PreorderController extends Controller
         $preorder->save();
 
         return back()->with('success', 'Preorder cancelled.');
+    }
+
+    // ------------------------------
+    // Customer: Show preorder form
+    // ------------------------------
+    public function create(FarmProduce $produce)
+    {
+        // if (!$produce->isAvailable()) {
+        //     abort(404);
+        // }
+
+        return view('customer.preorders.create', compact('produce'));
+    }
+
+
+    // ------------------------------
+    // Customer: Store preorder
+    // ------------------------------
+    public function store(Request $request, FarmProduce $produce)
+    {
+        $request->validate([
+            'quantity' => ['required', 'integer', 'min:1'],
+        ]);
+
+
+        if ($request->quantity > $produce->availableQuantity()) {
+            return back()->withErrors('Not enough available stock.');
+        }
+
+
+        Preorder::create([
+            'customer_id' => Auth::id(),
+            'farm_produce_id' => $produce->id,
+            'quantity' => $request->quantity,
+            'status' => 'pending',
+        ]);
+
+
+        // reserve quantity
+        $produce->reserved_quantity += $request->quantity;
+        $produce->save();
+
+
+        return redirect()
+            ->route('customer.preorders.index')
+            ->with('success', 'Preorder placed successfully.');
     }
 }

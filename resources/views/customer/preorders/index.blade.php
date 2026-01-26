@@ -1,4 +1,4 @@
-<x-layouts.mapp title="My Preorders">
+<x-layouts.app title="My Preorders">
     <div class="mb-4">
         <h1 class="text-xl font-semibold">My Preorders</h1>
     </div>
@@ -46,4 +46,4 @@
             </tbody>
         </table>
     </div>
-</x-layouts.mapp>
+</x-layouts.app>
