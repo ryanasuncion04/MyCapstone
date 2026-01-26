@@ -15,6 +15,9 @@ class PreorderController extends Controller
     public function index()
     {
         $preorders = Preorder::with(['produce.farmer', 'customer'])
+            ->whereHas('produce', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 
