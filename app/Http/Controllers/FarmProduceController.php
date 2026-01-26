@@ -89,30 +89,29 @@ class FarmProduceController extends Controller
 
     public function update(Request $request, FarmProduce $farmProduce)
     {
+            //dd($request->all());
+        // ✅ Ensure the manager owns this produce
+        if ($farmProduce->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // ✅ Validate input
         $validated = $request->validate([
             'farmer_id' => ['required', 'exists:farmers,id'],
             'product' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'quantity' => ['required', 'integer', 'min:' . $farmProduce->reserved_quantity],
             'price' => ['required', 'numeric', 'min:0'],
-            'quantity' => ['required', 'integer', 'min:0'],
-            'image' => ['nullable', 'image', 'max:2048'], // 2MB
+            'image' => ['nullable', 'image', 'max:2048'],
+            'status' => ['required', 'in:draft,available,unavailable'],
         ]);
 
-        // Handle image update
+        // ✅ Handle image upload if a new image is provided
         if ($request->hasFile('image')) {
-
-            // Delete old image if exists
-            if ($farmProduce->image) {
-                Storage::disk('public')->delete($farmProduce->image);
-            }
-
-            // Store new image
-            $validated['image'] = $request
-                ->file('image')
-                ->store('farm-produces', 'public');
+            $validated['image'] = $request->file('image')->store('farm-produces', 'public');
         }
 
-        // Update produce record
+        // ✅ Update the farm produce
         $farmProduce->update($validated);
 
         return redirect()

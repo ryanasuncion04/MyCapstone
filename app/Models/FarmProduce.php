@@ -15,7 +15,7 @@ class FarmProduce extends Model
         'description',
         'price', 
         'quantity',
-        'reserve_quantity',
+        'reserved_quantity',
         'image',
         'status',
     ];
