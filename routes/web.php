@@ -63,10 +63,13 @@ Route::delete('/profile', function () {
 // Chat routes
 Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
 Route::get('/chat/mindex', [ChatController::class, 'mindex'])->name('chat.mindex');
+Route::get('/chat/adindex', [ChatController::class, 'adindex'])->name('chat.adindex');
 Route::post('/chat/start', [ChatController::class, 'startConversation'])->name('chat.start');
 Route::post('/chat/mstart', [ChatController::class, 'mstartConversation'])->name('chat.mstart');
+Route::post('/chat/adstart', [ChatController::class, 'adstartConversation'])->name('chat.adstart');
 Route::get('/chat/{conversation}', [ChatController::class, 'show'])->name('chat.show');
 Route::get('/mchat/{conversation}', [ChatController::class, 'mshow'])->name('chat.mshow');
+Route::get('/adchat/{conversation}', [ChatController::class, 'adshow'])->name('chat.adshow');
 
 // Password edit routes for settings
 Route::get('/user/password', function () {
