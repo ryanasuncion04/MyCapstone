@@ -24,8 +24,20 @@
             {{-- Product --}}
             <div>
                 <label class="block text-sm font-medium mb-1">Product</label>
-                <input type="text" name="product" value="{{ old('product', $farmProduce->product) }}"
-                    class="w-full border rounded-lg p-2" required>
+
+                <select name="product" class="w-full border rounded-lg p-2" required>
+                    <option value="">Select product</option>
+
+                    @foreach ($products as $product)
+                        <option value="{{ $product->product_name }}" @selected(old('product', $farmProduce->product ?? null) == $product->product_name)>
+                            {{ $product->product_name }}
+                        </option>
+                    @endforeach
+                </select>
+
+                @error('product_id')
+                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             {{-- Description --}}

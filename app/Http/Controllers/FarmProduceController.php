@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 // app/Http/Controllers/FarmProduceController.php
+use App\Models\Product;
 
 class FarmProduceController extends Controller
 {
@@ -30,7 +31,8 @@ class FarmProduceController extends Controller
 
     public function create()
     {
-        return view('manager.farm-produce.create');
+        $products = Product::orderBy('product_name')->get();
+        return view('manager.farm-produce.create', compact('products'));
     }
 
     public function store(Request $request)
@@ -84,7 +86,8 @@ class FarmProduceController extends Controller
 
     public function edit(FarmProduce $farmProduce)
     {
-        return view('manager.farm-produce.edit', compact('farmProduce'));
+         $products = Product::orderBy('product_name')->get();
+        return view('manager.farm-produce.edit', compact('farmProduce', 'products'));
     }
 
     public function update(Request $request, FarmProduce $farmProduce)

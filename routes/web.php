@@ -9,6 +9,7 @@ use App\Http\Controllers\PreorderController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
+use App\Http\Controllers\ProductController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -147,5 +148,12 @@ Route::prefix('customer')->name('customer.')->middleware(['auth'])->group(functi
     Route::post('preorders/store/{produce}',[PreorderController::class, 'store'])->name('preorders.store');
 
 });
+
+Route::middleware(['auth'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('products', ProductController::class);
+    });
 
 
