@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboardController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Admin\UserController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -144,8 +145,8 @@ Route::middleware(['auth'])
 Route::prefix('customer')->name('customer.')->middleware(['auth'])->group(function () {
     Route::get('preorders', [PreorderController::class, 'customerIndex'])->name('preorders.index');
     Route::delete('preorders/{preorder}/cancel', [PreorderController::class, 'cancel'])->name('preorders.cancel');
-    Route::get( 'preorders/create/{produce}',[PreorderController::class, 'create'])->name('preorders.create');
-    Route::post('preorders/store/{produce}',[PreorderController::class, 'store'])->name('preorders.store');
+    Route::get('preorders/create/{produce}', [PreorderController::class, 'create'])->name('preorders.create');
+    Route::post('preorders/store/{produce}', [PreorderController::class, 'store'])->name('preorders.store');
 
 });
 
@@ -154,6 +155,23 @@ Route::middleware(['auth'])
     ->name('admin.')
     ->group(function () {
         Route::resource('products', ProductController::class);
+    });
+
+Route::middleware(['auth'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        // users
+        Route::get('users', [UserController::class, 'index'])
+            ->name('users.index');
+
+        Route::patch('users/{user}/role', [UserController::class, 'updateRole'])
+            ->name('users.update-role');
+
+        Route::patch('users/{user}/municipality', [UserController::class, 'updateMunicipality'])
+            ->name('users.update-municipality');
+    
     });
 
 

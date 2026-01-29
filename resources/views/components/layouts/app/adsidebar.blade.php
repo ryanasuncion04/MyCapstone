@@ -23,12 +23,18 @@
 
         <flux:navlist variant="outline">
             <flux:navlist.group :heading="__('Platform')" class="grid">
-                <flux:navlist.item icon="home" :href="route('admin.dashboard')" :current="request()->routeIs('admin.dashboard')"
-                    wire:navigate>{{ __('Home') }}</flux:navlist.item>
+                <flux:navlist.item icon="home" :href="route('admin.dashboard')"
+                    :current="request()->routeIs('admin.dashboard')" wire:navigate>{{ __('Home') }}
+                </flux:navlist.item>
 
                 <flux:navlist.item icon="shopping-bag" :href="route('admin.products.index')"
                     :current="request()->routeIs('admin.products.*')" wire:navigate>
                     {{ __('Products') }}
+                </flux:navlist.item>
+
+                <flux:navlist.item icon="users" :href="route('admin.users.index')"
+                    :current="request()->routeIs('admin.users.*')" wire:navigate>
+                    {{ __('Users') }}
                 </flux:navlist.item>
 
                 <flux:navlist.item icon="envelope" :href="route('chat.adindex')" :current="request()->routeIs('chat.*')"
