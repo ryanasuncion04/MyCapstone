@@ -22,6 +22,10 @@ Route::middleware(['auth', 'role:user'])
     ->group(function () {
         Route::get('/products', [UserDashboardController::class, 'index'])
             ->name('products');
+        Route::get('/farmProduceDashboard', [UserDashboardController::class, 'map'])
+            ->name('map');
+        Route::get('/api/produce-map', [UserDashboardController::class, 'produceMap'])
+            ->name('produce.map');
     });
 
 Route::middleware(['auth', 'role:admin'])
@@ -171,7 +175,7 @@ Route::middleware(['auth'])
 
         Route::patch('users/{user}/municipality', [UserController::class, 'updateMunicipality'])
             ->name('users.update-municipality');
-    
+
     });
 
 
