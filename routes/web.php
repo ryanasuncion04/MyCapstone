@@ -34,6 +34,9 @@ Route::middleware(['auth', 'role:admin'])
     ->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
             ->name('dashboard');
+        Route::get('/api/produce-map', [AdminDashboardController::class, 'produceMap'])
+            ->name('produce.map');
+
     });
 Route::middleware(['auth', 'role:manager'])
     ->prefix('manager')
@@ -41,6 +44,8 @@ Route::middleware(['auth', 'role:manager'])
     ->group(function () {
         Route::get('/dashboard', [ManagerDashboardController::class, 'index'])
             ->name('dashboard');
+        
+         
     });
 
 

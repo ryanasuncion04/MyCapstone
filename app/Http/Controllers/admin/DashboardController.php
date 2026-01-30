@@ -4,10 +4,46 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\FarmProduce;
 
 class DashboardController extends Controller
 {
-    public function index(){
-        return view('admin.dashboard');
+    public function index()
+    {
+        // Products for filter dropdown
+        $products = FarmProduce::query()
+            ->where('status', 'available')
+            ->distinct()
+            ->pluck('product');
+       // dd($products);
+
+        return view('admin.dashboard', compact('products'));
+    }
+
+     public function produceMap(Request $request)
+    {
+        $product = $request->get('product');
+
+        $query = FarmProduce::query()
+            ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
+            ->where('farm_produces.status', 'available');
+
+        if ($product) {
+            $query->where('farm_produces.product', $product);
+        }
+
+        $data = $query
+            ->groupBy('farmers.municipality')
+            ->select(
+                'farmers.municipality',
+                DB::raw('SUM(farm_produces.quantity) as total_quantity')
+            )
+            ->get();
+
+        return response()->json([
+            'data' => $data,
+            'top3' => $data->sortByDesc('total_quantity')->take(3)->values(),
+        ]);
     }
 }
