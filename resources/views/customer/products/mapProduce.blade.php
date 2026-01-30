@@ -25,7 +25,7 @@
             <h2 class="text-lg font-semibold mb-2">
                 Top 3 Producing Municipalities
             </h2>
-            <ul id="top3" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <ul id="top3" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-green-600">
             </ul>
         </div>
 
