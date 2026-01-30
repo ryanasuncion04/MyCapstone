@@ -31,11 +31,6 @@
 
     </div>
 
-    {{-- Leaflet --}}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
-
     <script>
         const map = L.map('map').setView([18.1647, 120.7116], 9);
 
