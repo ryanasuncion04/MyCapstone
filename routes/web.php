@@ -37,6 +37,11 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/api/produce-map', [AdminDashboardController::class, 'produceMap'])
             ->name('produce.map');
 
+        Route::get('/produce-analytics', [AdminDashboardController::class, 'analytics'])
+            ->name('produce.analytics');
+        Route::get('/produce-analytics/data', [AdminDashboardController::class, 'data'])
+            ->name('produce.analytics.data');
+
     });
 Route::middleware(['auth', 'role:manager'])
     ->prefix('manager')
