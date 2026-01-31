@@ -42,6 +42,13 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/produce-analytics/data', [AdminDashboardController::class, 'data'])
             ->name('produce.analytics.data');
 
+        Route::get('/produce-visualization', [AdminDashboardController::class, 'visualization'])
+            ->name('produce.visualization');
+        Route::get('/produce-visualization/data', [AdminDashboardController::class, 'visualizationData'])
+            ->name('produce.visualization.data');
+        Route::get('/produce-visualization/municipality/{municipality}', [AdminDashboardController::class, 'municipalityTrend'])
+            ->name('produce.visualization.municipality');
+
     });
 Route::middleware(['auth', 'role:manager'])
     ->prefix('manager')

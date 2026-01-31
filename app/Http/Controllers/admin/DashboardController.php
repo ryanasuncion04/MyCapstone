@@ -142,4 +142,62 @@ class DashboardController extends Controller
             'yieldPerFarmer' => $yieldPerFarmer,
         ]);
     }
+
+    public function visualization()
+    {
+        $products = FarmProduce::where('status', 'available')
+            ->distinct()
+            ->pluck('product');
+
+        return view('admin.produce.visualization', compact('products'));
+    }
+
+    /**
+     * Choropleth + Top 3
+     */
+    public function visualizationData(Request $request)
+    {
+        $product = $request->get('product');
+
+        $query = FarmProduce::query()
+            ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
+            ->where('farm_produces.status', 'available');
+
+        if ($product) {
+            $query->where('farm_produces.product', $product);
+        }
+
+        $data = $query
+            ->groupBy('farmers.municipality')
+            ->select(
+                'farmers.municipality',
+                DB::raw('SUM(farm_produces.quantity) as total_quantity')
+            )
+            ->get();
+
+        return response()->json([
+            'data' => $data,
+            'top3' => $data->sortByDesc('total_quantity')->take(3)->values(),
+        ]);
+    }
+
+    /**
+     * Municipality trend (monthly)
+     */
+    public function municipalityTrend(string $municipality)
+    {
+        $trend = FarmProduce::query()
+            ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
+            ->where('farmers.municipality', $municipality)
+            ->where('farm_produces.status', 'available')
+            ->groupBy(DB::raw('DATE_FORMAT(farm_produces.created_at, "%Y-%m")'))
+            ->select(
+                DB::raw('DATE_FORMAT(farm_produces.created_at, "%Y-%m") as period'),
+                DB::raw('SUM(farm_produces.quantity) as total_quantity')
+            )
+            ->orderBy('period')
+            ->get();
+
+        return response()->json($trend);
+    }
 }

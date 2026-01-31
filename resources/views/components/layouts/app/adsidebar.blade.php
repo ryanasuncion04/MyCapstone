@@ -32,13 +32,23 @@
                     {{ __('Products') }}
                 </flux:navlist.item>
 
+                <flux:navlist.item icon="chart-bar" :href="route('admin.produce.analytics')"
+                    :current="request()->routeIs('admin.produce.analytics')" wire:navigate>
+                    {{ __('Produce Analytics') }}
+                </flux:navlist.item>
+
+                <flux:navlist.item icon="map" :href="route('admin.produce.visualization')"
+                    :current="request()->routeIs('admin.produce.visualization')" wire:navigate>
+                    {{ __('Produce Visualization') }}
+                </flux:navlist.item>
+
                 <flux:navlist.item icon="users" :href="route('admin.users.index')"
                     :current="request()->routeIs('admin.users.*')" wire:navigate>
                     {{ __('Users') }}
                 </flux:navlist.item>
 
-                <flux:navlist.item icon="envelope" :href="route('chat.adindex')" :current="request()->routeIs('chat.*')"
-                    wire:navigate>{{ __('Messages') }}</flux:navlist.item>
+                <flux:navlist.item icon="envelope" :href="route('chat.adindex')"
+                    :current="request()->routeIs('chat.*')" wire:navigate>{{ __('Messages') }}</flux:navlist.item>
             </flux:navlist.group>
         </flux:navlist>
 
