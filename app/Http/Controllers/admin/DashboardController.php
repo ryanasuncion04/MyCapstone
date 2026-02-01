@@ -16,12 +16,12 @@ class DashboardController extends Controller
             ->where('status', 'available')
             ->distinct()
             ->pluck('product');
-       // dd($products);
+        // dd($products);
 
         return view('admin.dashboard', compact('products'));
     }
 
-     public function produceMap(Request $request)
+    public function produceMap(Request $request)
     {
         $product = $request->get('product');
 
@@ -47,7 +47,7 @@ class DashboardController extends Controller
         ]);
     }
 
-     public function analytics()
+    public function analytics()
     {
         // For dropdown filters
         $products = FarmProduce::distinct()->pluck('product');
@@ -99,7 +99,7 @@ class DashboardController extends Controller
                 DB::raw('MONTH(created_at) as month'),
                 DB::raw('SUM(quantity) as total_quantity')
             )
-            ->when($product, fn ($q) => $q->where('product', $product))
+            ->when($product, fn($q) => $q->where('product', $product))
             ->groupBy('year', 'month')
             ->orderBy('year')
             ->get();
@@ -199,5 +199,47 @@ class DashboardController extends Controller
             ->get();
 
         return response()->json($trend);
+    }
+
+    public function heatmap()
+    {
+        $products = FarmProduce::where('status', 'available')
+            ->distinct()
+            ->pluck('product');
+
+        return view('admin.produce.heatmap', compact('products'));
+    }
+
+    public function heatmapdata(Request $request)
+    {
+        $product = $request->product;
+        $metric = $request->metric ?? 'quantity';
+
+        $query = FarmProduce::query()
+            ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
+            ->whereNotNull('farmers.barangay')
+            ->where('farm_produces.status', 'available');
+
+        if ($product) {
+            $query->where('farm_produces.product', $product);
+        }
+
+        // Determine the value column based on the metric
+        if ($metric === 'revenue') {
+            $valueColumn = DB::raw('SUM(farm_produces.quantity * farm_produces.price) as value');
+        } else {
+            $valueColumn = DB::raw('SUM(farm_produces.quantity) as value');
+        }
+
+        // Fetch grouped data
+        $data = $query
+            ->groupBy(DB::raw('LOWER(TRIM(farmers.barangay))'))
+            ->select(
+                DB::raw('LOWER(TRIM(farmers.barangay)) as barangay'),
+                $valueColumn
+            )
+            ->get();
+
+        return response()->json($data);
     }
 }

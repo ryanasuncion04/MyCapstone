@@ -42,6 +42,11 @@
                     {{ __('Produce Visualization') }}
                 </flux:navlist.item>
 
+                <flux:navlist.item icon="arrow-trending-up" :href="route('admin.produce.heatmap')"
+                    :current="request()->routeIs('admin.produce.heatmap')" wire:navigate>
+                    {{ __('Produce Density Heatmap') }}
+                </flux:navlist.item>
+
                 <flux:navlist.item icon="users" :href="route('admin.users.index')"
                     :current="request()->routeIs('admin.users.*')" wire:navigate>
                     {{ __('Users') }}

@@ -49,6 +49,13 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/produce-visualization/municipality/{municipality}', [AdminDashboardController::class, 'municipalityTrend'])
             ->name('produce.visualization.municipality');
 
+
+        Route::get('/produce-heatmap', [AdminDashboardController::class, 'heatmap'])
+            ->name('produce.heatmap');
+
+        Route::get('/api/produce-heatmap', [AdminDashboardController::class, 'heatmapdata'])
+            ->name('produce.heatmap.data');
+
     });
 Route::middleware(['auth', 'role:manager'])
     ->prefix('manager')
