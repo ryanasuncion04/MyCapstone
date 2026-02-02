@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\FarmProduce;
+use Carbon\Carbon;
+use App\Models\Farmer;
 
 class DashboardController extends Controller
 {
@@ -201,45 +203,45 @@ class DashboardController extends Controller
         return response()->json($trend);
     }
 
-    public function heatmap()
+    //municipality perfomance view
+    public function municipalityMap()
     {
-        $products = FarmProduce::where('status', 'available')
-            ->distinct()
-            ->pluck('product');
-
-        return view('admin.produce.heatmap', compact('products'));
+        return view('admin.produce.municipality');
     }
 
-    public function heatmapdata(Request $request)
+    public function municipalityData($municipality)
     {
-        $product = $request->product;
-        $metric = $request->metric ?? 'quantity';
+        $startOfMonth = Carbon::now()->startOfMonth();
 
-        $query = FarmProduce::query()
+        $summary = DB::table('farm_produces')
             ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
-            ->whereNotNull('farmers.barangay')
-            ->where('farm_produces.status', 'available');
+            ->where('farm_produces.status', 'available')
+            ->where('farmers.municipality', $municipality)
+            ->where('farm_produces.created_at', '>=', $startOfMonth)
+            ->selectRaw('
+            SUM(quantity) as total_quantity,
+            SUM(quantity * price) as total_revenue,
+            AVG(price) as avg_price,
+            COUNT(DISTINCT farmers.id) as farmer_count
+        ')
+            ->first();
 
-        if ($product) {
-            $query->where('farm_produces.product', $product);
-        }
-
-        // Determine the value column based on the metric
-        if ($metric === 'revenue') {
-            $valueColumn = DB::raw('SUM(farm_produces.quantity * farm_produces.price) as value');
-        } else {
-            $valueColumn = DB::raw('SUM(farm_produces.quantity) as value');
-        }
-
-        // Fetch grouped data
-        $data = $query
-            ->groupBy(DB::raw('LOWER(TRIM(farmers.barangay))'))
+        $topProducts = DB::table('farm_produces')
+            ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
+            ->where('farmers.municipality', $municipality)
+            ->where('farm_produces.status', 'available')
+            ->groupBy('product')
             ->select(
-                DB::raw('LOWER(TRIM(farmers.barangay)) as barangay'),
-                $valueColumn
+                'product',
+                DB::raw('SUM(quantity) as total_quantity')
             )
+            ->orderByDesc('total_quantity')
+            ->take(5)
             ->get();
 
-        return response()->json($data);
+        return response()->json([
+            'summary' => $summary,
+            'topProducts' => $topProducts
+        ]);
     }
 }

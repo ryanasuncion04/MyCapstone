@@ -50,11 +50,11 @@ Route::middleware(['auth', 'role:admin'])
             ->name('produce.visualization.municipality');
 
 
-        Route::get('/produce-heatmap', [AdminDashboardController::class, 'heatmap'])
-            ->name('produce.heatmap');
+         Route::get('/municipality-map', [AdminDashboardController::class, 'municipalityMap']
+        )->name('municipality.map');
 
-        Route::get('/api/produce-heatmap', [AdminDashboardController::class, 'heatmapdata'])
-            ->name('produce.heatmap.data');
+        Route::get('/municipality-map/{municipality}', [AdminDashboardController::class, 'municipalityData']
+        )->name('municipality.map.data');
 
     });
 Route::middleware(['auth', 'role:manager'])
@@ -63,8 +63,8 @@ Route::middleware(['auth', 'role:manager'])
     ->group(function () {
         Route::get('/dashboard', [ManagerDashboardController::class, 'index'])
             ->name('dashboard');
-        
-         
+
+
     });
 
 
