@@ -48,89 +48,79 @@ class DashboardController extends Controller
             'top3' => $data->sortByDesc('total_quantity')->take(3)->values(),
         ]);
     }
-
     public function analytics()
     {
-        // For dropdown filters
         $products = FarmProduce::distinct()->pluck('product');
+        $municipalities = Farmer::distinct()->pluck('municipality');
 
-        return view('admin.produce.analytics', compact('products'));
+        return view('admin.produce.analytics', compact('products', 'municipalities'));
     }
 
     public function data(Request $request)
     {
         $product = $request->get('product');
-        $range = $request->get('range', 'monthly'); // daily | weekly | monthly
+        $municipality = $request->get('municipality');
+        $range = $request->get('range', 'monthly');
 
-        /*
-        |--------------------------------------------------------------------------
-        | 1. PRODUCE TRENDS OVER TIME
-        |--------------------------------------------------------------------------
-        */
         $dateFormat = match ($range) {
             'daily' => '%Y-%m-%d',
             'weekly' => '%Y-%u',
             default => '%Y-%m',
         };
 
-        $trendQuery = FarmProduce::query()
-            ->where('status', 'available')
+        /*
+        |------------------------------------------------------------------
+        | 1. PRODUCE TRENDS
+        |------------------------------------------------------------------
+        */
+        $trends = FarmProduce::query()
+            ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
+            ->where('farm_produces.status', 'available')
+            ->when($product, fn($q) => $q->where('farm_produces.product', $product))
+            ->when($municipality, fn($q) => $q->where('farmers.municipality', $municipality))
             ->select(
-                DB::raw("DATE_FORMAT(created_at, '{$dateFormat}') as period"),
+                DB::raw("DATE_FORMAT(farm_produces.created_at, '{$dateFormat}') as period"),
                 DB::raw('SUM(quantity) as total_quantity')
-            );
-
-        if ($product) {
-            $trendQuery->where('product', $product);
-        }
-
-        $trends = $trendQuery
+            )
             ->groupBy('period')
             ->orderBy('period')
             ->get();
 
         /*
-        |--------------------------------------------------------------------------
-        | 2. MONTHLY / WEEKLY COMPARISON BY YEAR
-        |--------------------------------------------------------------------------
+        |------------------------------------------------------------------
+        | 2. PRODUCT DISTRIBUTION
+        |------------------------------------------------------------------
         */
-        $comparison = FarmProduce::query()
+        $productDistribution = FarmProduce::query()
             ->where('status', 'available')
-            ->select(
-                DB::raw('YEAR(created_at) as year'),
-                DB::raw('MONTH(created_at) as month'),
-                DB::raw('SUM(quantity) as total_quantity')
-            )
-            ->when($product, fn($q) => $q->where('product', $product))
-            ->groupBy('year', 'month')
-            ->orderBy('year')
+            ->select('product', DB::raw('SUM(quantity) as total'))
+            ->groupBy('product')
             ->get();
 
         /*
-        |--------------------------------------------------------------------------
-        | 3. AVERAGE PRICE PER PRODUCT PER MUNICIPALITY
-        |--------------------------------------------------------------------------
+        |------------------------------------------------------------------
+        | 3. AVERAGE PRICE PER MUNICIPALITY
+        |------------------------------------------------------------------
         */
         $avgPrice = FarmProduce::query()
             ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
             ->select(
-                'farm_produces.product',
                 'farmers.municipality',
                 DB::raw('AVG(price) as avg_price')
             )
-            ->groupBy('farm_produces.product', 'farmers.municipality')
+            ->groupBy('farmers.municipality')
             ->get();
 
         /*
-        |--------------------------------------------------------------------------
-        | 4. YIELD PER FARMER (RANKING)
-        |--------------------------------------------------------------------------
+        |------------------------------------------------------------------
+        | 4. TOP FARMERS BY YIELD
+        |------------------------------------------------------------------
         */
         $yieldPerFarmer = FarmProduce::query()
             ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
             ->select(
                 'farmers.name',
-                DB::raw('SUM(farm_produces.quantity) as total_quantity')
+                DB::raw('SUM(quantity) as total_quantity')
             )
             ->groupBy('farmers.name')
             ->orderByDesc('total_quantity')
@@ -139,11 +129,12 @@ class DashboardController extends Controller
 
         return response()->json([
             'trends' => $trends,
-            'comparison' => $comparison,
+            'productDistribution' => $productDistribution,
             'avgPrice' => $avgPrice,
             'yieldPerFarmer' => $yieldPerFarmer,
         ]);
     }
+
 
     public function visualization()
     {

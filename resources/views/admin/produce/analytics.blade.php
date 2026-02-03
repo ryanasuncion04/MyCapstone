@@ -1,124 +1,151 @@
 <x-layouts.adapp title="Produce Analytics">
 
     <div class="p-6 space-y-6">
-        <h1 class="text-2xl font-bold">Farm Produce Analytics</h1>
+        <h1 class="text-2xl font-bold">📊 Farm Produce Analytics</h1>
 
         {{-- Filters --}}
-        <div class="flex gap-4">
-            <select id="product" class="border rounded p-2">
+        <div class="flex flex-wrap gap-4">
+            <select id="product" class="border rounded-lg p-2">
                 <option value="">All Products</option>
-                @foreach($products as $product)
+                @foreach ($products as $product)
                     <option value="{{ $product }}">{{ $product }}</option>
                 @endforeach
             </select>
 
-            <select id="range" class="border rounded p-2">
+            <select id="municipality" class="border rounded-lg p-2">
+                <option value="">All Municipalities</option>
+                @foreach ($municipalities as $municipality)
+                    <option value="{{ $municipality }}">{{ $municipality }}</option>
+                @endforeach
+            </select>
+
+            <select id="range" class="border rounded-lg p-2">
                 <option value="monthly">Monthly</option>
                 <option value="weekly">Weekly</option>
                 <option value="daily">Daily</option>
             </select>
         </div>
 
-        {{-- Charts --}}
+        {{-- Analytics Cards --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <canvas id="trendChart">Produce Trend</canvas>
-            <canvas id="comparisonChart">Monthly Comparison</canvas>
-            <canvas id="avgPriceChart">Average Price</canvas>
-            <canvas id="yieldChart">Yield per Farmer</canvas>
+
+            {{-- Produce Trend --}}
+            <div class="p-4 border rounded-xl shadow-sm bg-white">
+                <h2 class="font-semibold mb-3">📈 Produce Trend Over Time</h2>
+                <canvas id="trendChart"></canvas>
+            </div>
+
+            {{-- Product Distribution --}}
+            <div class="p-4 border rounded-xl shadow-sm bg-white">
+                <h2 class="font-semibold mb-3">📦 Product Distribution</h2>
+                <canvas id="productChart"></canvas>
+            </div>
+
+            {{-- Average Price --}}
+            <div class="p-4 border rounded-xl shadow-sm bg-white">
+                <h2 class="font-semibold mb-3">💰 Average Price per Municipality</h2>
+                <canvas id="avgPriceChart"></canvas>
+            </div>
+
+            {{-- Yield per Farmer --}}
+            <div class="p-4 border rounded-xl shadow-sm bg-white">
+                <h2 class="font-semibold mb-3">🏆 Top Farmers by Yield</h2>
+                <canvas id="yieldChart"></canvas>
+            </div>
+
         </div>
     </div>
 
-    {{-- Chart.js --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   
 
     <script>
+        const productEl = document.getElementById('product');
+        const municipalityEl = document.getElementById('municipality');
+        const rangeEl = document.getElementById('range');
+
         let charts = {};
 
         function loadAnalytics() {
-            const product = document.getElementById('product').value;
-            const range = document.getElementById('range').value;
+            const product = productEl.value;
+            const municipality = municipalityEl.value;
+            const range = rangeEl.value;
 
-            fetch(`{{ route('admin.produce.analytics.data') }}?product=${product}&range=${range}`)
+            fetch(
+                    `{{ route('admin.produce.analytics.data') }}?product=${product}&municipality=${municipality}&range=${range}`)
                 .then(res => res.json())
                 .then(data => {
-                    renderTrendChart(data.trends);
-                    renderComparisonChart(data.comparison);
-                    renderAvgPriceChart(data.avgPrice);
-                    renderYieldChart(data.yieldPerFarmer);
+                    renderTrend(data.trends);
+                    renderProductDistribution(data.productDistribution);
+                    renderAvgPrice(data.avgPrice);
+                    renderYield(data.yieldPerFarmer);
                 });
         }
 
-        function renderTrendChart(data) {
-            const ctx = document.getElementById('trendChart');
-
+        function renderTrend(data) {
             charts.trend?.destroy();
 
-            charts.trend = new Chart(ctx, {
+            charts.trend = new Chart(trendChart, {
                 type: 'line',
                 data: {
                     labels: data.map(d => d.period),
                     datasets: [{
-                        label: 'Total Produce',
+                        label: 'Total Quantity',
                         data: data.map(d => d.total_quantity),
-                        borderWidth: 2
+                        borderWidth: 2,
+                        tension: 0.4
                     }]
                 }
             });
         }
 
-        function renderComparisonChart(data) {
-            const ctx = document.getElementById('comparisonChart');
+        function renderProductDistribution(data) {
+            charts.product?.destroy();
 
-            charts.comparison?.destroy();
-
-            charts.comparison = new Chart(ctx, {
+            charts.product = new Chart(productChart, {
                 type: 'bar',
                 data: {
-                    labels: data.map(d => `${d.year}-${d.month}`),
+                    labels: data.map(d => d.product),
                     datasets: [{
-                        label: 'Monthly Comparison',
-                        data: data.map(d => d.total_quantity)
+                        label: 'Total Quantity',
+                        data: data.map(d => d.total),
                     }]
                 }
             });
         }
 
-        function renderAvgPriceChart(data) {
-            const ctx = document.getElementById('avgPriceChart');
-
+        function renderAvgPrice(data) {
             charts.avg?.destroy();
 
-            charts.avg = new Chart(ctx, {
+            charts.avg = new Chart(avgPriceChart, {
                 type: 'bar',
                 data: {
-                    labels: data.map(d => `${d.product} (${d.municipality})`),
+                    labels: data.map(d => d.municipality),
                     datasets: [{
-                        label: 'Avg Price',
-                        data: data.map(d => d.avg_price)
+                        label: 'Average Price',
+                        data: data.map(d => d.avg_price),
                     }]
                 }
             });
         }
 
-        function renderYieldChart(data) {
-            const ctx = document.getElementById('yieldChart');
-
+        function renderYield(data) {
             charts.yield?.destroy();
 
-            charts.yield = new Chart(ctx, {
+            charts.yield = new Chart(yieldChart, {
                 type: 'bar',
                 data: {
                     labels: data.map(d => d.name),
                     datasets: [{
-                        label: 'Total Produce',
-                        data: data.map(d => d.total_quantity)
+                        label: 'Total Yield',
+                        data: data.map(d => d.total_quantity),
                     }]
                 }
             });
         }
 
-        document.getElementById('product').addEventListener('change', loadAnalytics);
-        document.getElementById('range').addEventListener('change', loadAnalytics);
+        productEl.addEventListener('change', loadAnalytics);
+        municipalityEl.addEventListener('change', loadAnalytics);
+        rangeEl.addEventListener('change', loadAnalytics);
 
         loadAnalytics();
     </script>
