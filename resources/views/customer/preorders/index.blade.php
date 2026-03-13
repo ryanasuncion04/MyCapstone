@@ -7,11 +7,12 @@
         <table class="w-full text-sm">
             <thead class="bg-zinc-100 dark:bg-zinc-800">
                 <tr>
-                    <th class="p-2">Produce</th>
-                    <th class="p-2">Farmer</th>
-                    <th class="p-2">Quantity</th>
-                    <th class="p-2">Status</th>
-                    <th class="p-2">Actions</th>
+                    <th class="p-2 text-left">Produce</th>
+                    <th class="p-2 text-left">Farmer</th>
+                    <th class="p-2 text-left">Contact</th>
+                    <th class="p-2 text-left">Quantity</th>
+                    <th class="p-2 text-left">Status</th>
+                    <th class="p-2 text-left">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -19,6 +20,7 @@
                 <tr class="border-t">
                     <td class="p-2">{{ $preorder->produce->product }}</td>
                     <td class="p-2">{{ $preorder->produce->farmer->name }}</td>
+                    <td class="p-2">{{ $preorder->produce->farmer->contact }}</td>
                     <td class="p-2">{{ $preorder->quantity }}</td>
                     <td class="p-2">
                         <span class="px-2 py-1 rounded text-xs 
