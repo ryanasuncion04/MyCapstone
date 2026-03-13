@@ -7,12 +7,12 @@
         <table class="w-full text-sm">
             <thead class="bg-zinc-100 dark:bg-zinc-800">
                 <tr>
-                    <th class="p-2">Customer</th>
-                    <th class="p-2">Produce</th>
-                    <th class="p-2">Farmer</th>
-                    <th class="p-2">Quantity</th>
-                    <th class="p-2">Status</th>
-                    <th class="text-right p-2">Actions</th>
+                    <th class="p-2 text-left">Customer</th>
+                    <th class="p-2 text-left">Produce</th>
+                    <th class="p-2 text-left">Farmer</th>
+                    <th class="p-2 text-left">Quantity</th>
+                    <th class="p-2 text-left">Status</th>
+                    <th class="p-2 text-left">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,7 +32,7 @@
                             {{ ucfirst($preorder->status) }}
                         </span>
                     </td>
-                    <td class="text-right p-2 space-x-2">
+                    <td class="text-left p-2 space-x-2">
                         @if($preorder->status === 'pending')
                             <form method="POST" action="{{ route('manager.preorders.approve', $preorder) }}" class="inline">
                                 @csrf
