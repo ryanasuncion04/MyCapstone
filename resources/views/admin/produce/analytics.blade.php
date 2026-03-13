@@ -1,7 +1,7 @@
 <x-layouts.adapp title="Produce Analytics">
 
     <div class="p-6 space-y-6">
-        <h1 class="text-2xl font-bold">📊 Farm Produce Analytics</h1>
+        <h1 class="text-2xl font-bold">Farm Produce Analytics</h1>
 
         {{-- Filters --}}
         <div class="flex flex-wrap gap-4">
