@@ -47,10 +47,11 @@
     <script>
         let map;
         let municipalityLayer;
+        const highlightedMunicipality = {};
 
         document.addEventListener('DOMContentLoaded', () => {
 
-            map = L.map('map').setView([18.1647, 120.7116], 9);
+            map = L.map('map').setView([18.1647, 120.7116], 10);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
@@ -60,43 +61,59 @@
         });
 
         function loadMunicipalities() {
-
             fetch('/maps/ilocos-norte.geojson')
                 .then(res => res.json())
                 .then(geojson => {
 
-                    municipalityLayer = L.geoJSON(geojson, {
-                        style: {
-                            fillColor: '#60a5fa',
-                            weight: 1,
-                            color: '#1e3a8a',
-                            fillOpacity: 0.5
-                        },
-                        onEachFeature: (feature, layer) => {
+                    // Group features by Municipality
+                    const municipalities = {};
+                    geojson.features.forEach(f => {
+                        const name = f.properties.Municipality;
+                        if (!municipalities[name]) municipalities[name] = [];
+                        municipalities[name].push(f);
+                    });
 
-                            const name = feature.properties.Municipality;
+                    municipalityLayer = L.layerGroup();
 
-                            layer.bindTooltip(name);
+                    Object.keys(municipalities).forEach(name => {
 
+                        const group = L.geoJSON(municipalities[name], {
+                            style: {
+                                fillColor: '#60a5fa',
+                                weight: 1,
+                                color: '#1e3a8a',
+                                fillOpacity: 0.5
+                            },
+                            onEachFeature: (feature, layer) => {
+                                layer.bindTooltip(name);
+                            }
+                        });
+
+                        group.addTo(municipalityLayer);
+
+                        group.eachLayer(layer => {
                             layer.on('click', () => {
-                                highlight(layer);
+                                highlightMunicipality(name);
                                 loadMunicipalityData(name);
                             });
-                        }
-                    }).addTo(map);
+                        });
+
+                        highlightedMunicipality[name] = group;
+                    });
+
+                    municipalityLayer.addTo(map);
                 });
         }
 
-        function highlight(layer) {
+        function highlightMunicipality(name) {
 
-            municipalityLayer.eachLayer(l => {
-                municipalityLayer.resetStyle(l);
+            // Reset all
+            Object.values(highlightedMunicipality).forEach(group => {
+                group.setStyle({ fillColor: '#60a5fa', fillOpacity: 0.5 });
             });
 
-            layer.setStyle({
-                fillColor: '#f97316',
-                fillOpacity: 0.7
-            });
+            // Highlight clicked municipality
+            highlightedMunicipality[name].setStyle({ fillColor: '#f97316', fillOpacity: 0.7 });
         }
 
         function loadMunicipalityData(municipality) {
