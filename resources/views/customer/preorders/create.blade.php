@@ -1,8 +1,26 @@
 <x-layouts.app title="Preorder">
 
     <div class="max-w-xl mx-auto p-6 space-y-6">
-        <h1 class="text-2xl font-semibold">Preorder Product</h1>
+        <h1 class="text-2xl font-semibold text-center">Preorder Product</h1>
 
+        {{-- Scrollable & Zoomable Image --}}
+        <div class="overflow-hidden rounded shadow-lg border">
+            @if ($produce->image)
+                <div class="relative w-full h-60 overflow-hidden cursor-zoom-in">
+                    <img src="{{ Storage::url($produce->image) }}"
+                         alt="{{ $produce->product }}"
+                         id="zoomable-image"
+                         class="w-full h-full object-cover transition-transform duration-200 ease-in-out"
+                         style="touch-action: pinch-zoom; transform: scale(1);">
+                </div>
+            @else
+                <div class="w-full h-60 flex items-center justify-center bg-zinc-200 dark:bg-zinc-700 rounded">
+                    <span class="text-zinc-500">No Image</span>
+                </div>
+            @endif
+        </div>
+
+        {{-- Product Info --}}
         <div class="border rounded p-4 space-y-2">
             <p><strong>Product:</strong> {{ $produce->product }}</p>
             <p><strong>Farmer:</strong> {{ $produce->farmer->name }}</p>
@@ -10,6 +28,7 @@
             <p><strong>Available:</strong> {{ $produce->availableQuantity() }}</p>
         </div>
 
+        {{-- Preorder Form --}}
         <form method="POST" action="{{ route('customer.preorders.store', $produce) }}">
             @csrf
 
@@ -24,5 +43,22 @@
             </button>
         </form>
     </div>
+
+    {{-- Zoom/Scroll Script --}}
+    <script>
+        const img = document.getElementById('zoomable-image');
+        let scale = 1;
+
+        img.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                scale += 0.1; // zoom in
+            } else {
+                scale -= 0.1; // zoom out
+                if(scale < 1) scale = 1; // don't shrink below original
+            }
+            img.style.transform = `scale(${scale})`;
+        });
+    </script>
 
 </x-layouts.app>
