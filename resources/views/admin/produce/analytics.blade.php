@@ -31,25 +31,25 @@
 
             {{-- Produce Trend --}}
             <div class="p-4 border rounded-xl shadow-sm bg-white">
-                <h2 class="font-semibold mb-3">📈 Produce Trend Over Time</h2>
+                <h2 class="font-semibold mb-3">Produce Trend Over Time</h2>
                 <canvas id="trendChart"></canvas>
             </div>
 
             {{-- Product Distribution --}}
             <div class="p-4 border rounded-xl shadow-sm bg-white">
-                <h2 class="font-semibold mb-3">📦 Product Distribution</h2>
+                <h2 class="font-semibold mb-3">Product Distribution</h2>
                 <canvas id="productChart"></canvas>
             </div>
 
             {{-- Average Price --}}
             <div class="p-4 border rounded-xl shadow-sm bg-white">
-                <h2 class="font-semibold mb-3">💰 Average Price per Municipality</h2>
+                <h2 class="font-semibold mb-3">Average Price per Municipality</h2>
                 <canvas id="avgPriceChart"></canvas>
             </div>
 
             {{-- Yield per Farmer --}}
             <div class="p-4 border rounded-xl shadow-sm bg-white">
-                <h2 class="font-semibold mb-3">🏆 Top Farmers by Yield</h2>
+                <h2 class="font-semibold mb-3">Top Farmers by Yield</h2>
                 <canvas id="yieldChart"></canvas>
             </div>
 

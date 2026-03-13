@@ -33,7 +33,7 @@
 
                 <button
                     type="submit"
-                    class="bg-primary text-white px-4 py-2 rounded-lg"
+                    class="bg-primaryte px-4 py-2 rounded-lg"
                 >
                     Save Product
                 </button>
