@@ -3,7 +3,7 @@
     <div class="p-6 space-y-6">
 
         <h1 class="text-2xl font-semibold">
-            Ilocos Norte Produce Visualization
+            Ilocos Norte Produce Concentration Map
         </h1>
 
         <!-- Filter -->
