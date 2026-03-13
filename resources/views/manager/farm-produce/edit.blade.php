@@ -102,7 +102,7 @@
                     Cancel
                 </a>
 
-                <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg">
+                <button type="submit" class="bg-primary px-4 py-2 rounded-lg">
                     Update Produce
                 </button>
             </div>
