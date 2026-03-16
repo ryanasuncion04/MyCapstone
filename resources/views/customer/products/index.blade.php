@@ -95,13 +95,18 @@
 
                         const popup = `
                             <div class="w-[300px] text-sm relative">
-
                                 <!-- Message Icon -->
                                 <a href="javascript:void(0)"
                                     onclick="startChat(${managerId})"
                                     class="absolute top-1 right-1 text-blue-600 hover:text-blue-800"
                                     title="Message seller">
-                                    💬
+
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        class="w-5 h-5">
+                                        <path d="M2.25 12c0-4.556 4.364-8.25 9.75-8.25s9.75 3.694 9.75 8.25-4.364 8.25-9.75 8.25c-1.33 0-2.597-.21-3.75-.6L2.25 21l1.35-3.15A7.91 7.91 0 012.25 12z"/>
+                                    </svg>
                                 </a>
 
                                 <!-- Farmer Image -->
