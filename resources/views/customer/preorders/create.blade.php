@@ -23,6 +23,7 @@
         {{-- Product Info --}}
         <div class="border rounded p-4 space-y-2">
             <p><strong>Product:</strong> {{ $produce->product }}</p>
+            <p><strong>About Product:</strong> {{ $produce->description }}</p>
             <p><strong>Farmer:</strong> {{ $produce->farmer->name }}</p>
             <p><strong>Contact:</strong> {{ $produce->farmer->contact }}</p>
             <p><strong>Price:</strong> ₱{{ $produce->price }}</p>
