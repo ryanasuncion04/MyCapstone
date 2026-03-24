@@ -24,6 +24,7 @@
         <div class="border rounded p-4 space-y-2">
             <p><strong>Product:</strong> {{ $produce->product }}</p>
             <p><strong>Farmer:</strong> {{ $produce->farmer->name }}</p>
+            <p><strong>Contact:</strong> {{ $produce->farmer->contact }}</p>
             <p><strong>Price:</strong> ₱{{ $produce->price }}</p>
             <p><strong>Available:</strong> {{ $produce->availableQuantity() }}</p>
         </div>
