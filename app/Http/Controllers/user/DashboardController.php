@@ -20,7 +20,14 @@ class DashboardController extends Controller
             ->get();
       //  dd($produces);
 
-        return view('customer.products.index', compact('produces'));
+               // ✅ ADD THIS (for dropdown filter)
+        $products = FarmProduce::query()
+            ->where('status', 'available')
+            ->whereColumn('quantity', '>', 'reserved_quantity')
+            ->distinct()
+            ->pluck('product');
+
+        return view('customer.products.index', compact('produces', 'products'));
     }
 
      public function map()
