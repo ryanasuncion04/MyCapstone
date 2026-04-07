@@ -109,11 +109,17 @@
 
             // Reset all
             Object.values(highlightedMunicipality).forEach(group => {
-                group.setStyle({ fillColor: '#60a5fa', fillOpacity: 0.5 });
+                group.setStyle({
+                    fillColor: '#60a5fa',
+                    fillOpacity: 0.5
+                });
             });
 
             // Highlight clicked municipality
-            highlightedMunicipality[name].setStyle({ fillColor: '#f97316', fillOpacity: 0.7 });
+            highlightedMunicipality[name].setStyle({
+                fillColor: '#f97316',
+                fillOpacity: 0.7
+            });
         }
 
         function loadMunicipalityData(municipality) {
@@ -124,17 +130,19 @@
                 .then(res => res.json())
                 .then(data => {
 
+                    const summary = data.summary || {};
+
                     document.getElementById('totalQuantity').innerText =
-                        Number(data.summary.total_quantity).toLocaleString();
+                        Number(summary.total_quantity || 0).toLocaleString();
 
                     document.getElementById('totalRevenue').innerText =
-                        '₱' + Number(data.summary.total_revenue).toLocaleString();
+                        '₱' + Number(summary.total_revenue || 0).toLocaleString();
 
                     document.getElementById('avgPrice').innerText =
-                        '₱' + Number(data.summary.avg_price).toFixed(2);
+                        '₱' + Number(summary.avg_price || 0).toFixed(2);
 
                     document.getElementById('farmerCount').innerText =
-                        data.summary.farmer_count;
+                        summary.farmer_count || 0;
 
                     const list = document.getElementById('topProducts');
                     list.innerHTML = '';
@@ -143,6 +151,7 @@
                         list.innerHTML += `<li>${p.product} (${p.total_quantity})</li>`;
                     });
                 });
+
         }
     </script>
 

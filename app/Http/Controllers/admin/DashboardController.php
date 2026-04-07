@@ -207,19 +207,19 @@ class DashboardController extends Controller
         $summary = DB::table('farm_produces')
             ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
             ->where('farm_produces.status', 'available')
-            ->where('farmers.municipality', $municipality)
-            ->where('farm_produces.created_at', '>=', $startOfMonth)
+            ->whereRaw('LOWER(farmers.municipality) = ?', [strtolower($municipality)])
+            // ->where('farm_produces.created_at', '>=', $startOfMonth)
             ->selectRaw('
-            SUM(quantity) as total_quantity,
-            SUM(quantity * price) as total_revenue,
-            AVG(price) as avg_price,
+            COALESCE(SUM(quantity), 0) as total_quantity,
+            COALESCE(SUM(quantity * price), 0) as total_revenue,
+            COALESCE(AVG(price), 0) as avg_price,
             COUNT(DISTINCT farmers.id) as farmer_count
         ')
             ->first();
 
         $topProducts = DB::table('farm_produces')
             ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
-            ->where('farmers.municipality', $municipality)
+            ->whereRaw('LOWER(farmers.municipality) = ?', [strtolower($municipality)])
             ->where('farm_produces.status', 'available')
             ->groupBy('product')
             ->select(
@@ -235,4 +235,5 @@ class DashboardController extends Controller
             'topProducts' => $topProducts
         ]);
     }
+
 }
