@@ -22,6 +22,8 @@ return new class extends Migration {
             $table->string('description')->nullable();
             $table->integer('quantity');
             $table->integer('price');
+            $table->date('available_from')->nullable();
+            $table->date('available_until')->nullable();
             $table->string('image')->nullable();
 
             /*
@@ -39,7 +41,7 @@ return new class extends Migration {
             $table->integer('reserved_quantity')->default(0);
             $table->timestamps();
 
-                        // Foreign keys
+            // Foreign keys
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')

@@ -65,7 +65,7 @@
 
             {{-- Quantity --}}
             <div>
-                <label class="block text-sm font-medium mb-1">Quantity</label>
+                <label class="block text-sm font-medium mb-1">Quantity in Kgs</label>
                 <input type="number" name="quantity" value="{{ old('quantity') }}" min="0"
                     class="w-full border rounded-lg p-2" required>
             </div>
@@ -76,6 +76,20 @@
                 <input type="number" name="price" value="{{ old('price') }}" min="0" step="0.01"
                     class="w-full border rounded-lg p-2" required>
             </div>
+            {{-- Availability Start --}}
+            <div>
+                <label class="block text-sm font-medium mb-1">Available From</label>
+                <input type="date" name="available_from" value="{{ old('available_from') }}"
+                    min="{{ date('Y-m-d') }}" class="w-full border rounded-lg p-2" required>
+            </div>
+
+            {{-- Availability End --}}
+            <div>
+                <label class="block text-sm font-medium mb-1">Available Until</label>
+                <input type="date" name="available_until" value="{{ old('available_until') }}"
+                    min="{{ date('Y-m-d') }}" class="w-full border rounded-lg p-2" required>
+            </div>
+
 
             {{-- Produce Image --}}
             <div>

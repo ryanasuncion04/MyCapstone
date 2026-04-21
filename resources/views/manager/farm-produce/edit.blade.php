@@ -64,6 +64,21 @@
                 <input type="number" name="price" value="{{ old('price', $farmProduce->price) }}" min="0"
                     step="0.01" class="w-full border rounded-lg p-2" required>
             </div>
+            {{-- Available From --}}
+            <div>
+                <label class="block text-sm font-medium mb-1">Available From</label>
+                <input type="date" name="available_from"
+                    value="{{ old('available_from', $farmProduce->available_from ? \Carbon\Carbon::parse($farmProduce->available_from)->format('Y-m-d') : '') }}"
+                    class="w-full border rounded-lg p-2" required>
+            </div>
+
+            {{-- Available Until --}}
+            <div>
+                <label class="block text-sm font-medium mb-1">Available Until</label>
+                <input type="date" name="available_until"
+                    value="{{ old('available_until', $farmProduce->available_until ? \Carbon\Carbon::parse($farmProduce->available_until)->format('Y-m-d') : '') }}"
+                    class="w-full border rounded-lg p-2" required>
+            </div>
 
             {{-- Status --}}
             <div>

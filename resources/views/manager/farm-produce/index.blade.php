@@ -21,10 +21,11 @@
                         <th class="p-3 text-left">Image</th>
                         <th class="p-3 text-left">Product</th>
                         <th class="p-3 text-left">Description</th>
+                        <th class="p-3 text-left">Availability</th>
                         <th class="p-3 text-left">Quantity</th>
                         <th class="p-3 text-left">Price</th>
                         <th class="p-3 text-left">Status</th>
-                         <th class="p-3 text-left">Farmer</th>
+                        <th class="p-3 text-left">Farmer</th>
                         <th class="p-3 text-left">Contact</th>
                         <th class="p-3 text-left">Municipality</th>
                         <th class="p-3 text-left">Actions</th>
@@ -53,6 +54,20 @@
                             <td class="p-3 text-zinc-600 dark:text-zinc-400">
                                 {{ $produce->description ?? '—' }}
                             </td>
+                            {{-- Availability --}}
+                            <td class="p-3 text-sm">
+                                <div class="flex flex-col">
+                                    <span>
+                                        <strong>From:</strong>
+                                        {{ $produce->available_from ? \Carbon\Carbon::parse($produce->available_from)->format('M d, Y') : '—' }}
+                                    </span>
+
+                                    <span>
+                                        <strong>Until:</strong>
+                                        {{ $produce->available_until ? \Carbon\Carbon::parse($produce->available_until)->format('M d, Y') : '—' }}
+                                    </span>
+                                </div>
+                            </td>
 
                             {{-- Quantity --}}
                             <td class="p-3">
@@ -67,13 +82,13 @@
                             <td class="p-3">
                                 {{ $produce->status }}
                             </td>
-                            
+
                             {{-- Farmer --}}
                             <td class="p-3">
                                 {{ $produce->farmer->name }}
                             </td>
 
-                            {{-- Farmer Contact--}}
+                            {{-- Farmer Contact --}}
                             <td class="p-3">
                                 {{ $produce->farmer->contact }}
                             </td>

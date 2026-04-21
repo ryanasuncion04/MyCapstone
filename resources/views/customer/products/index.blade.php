@@ -22,8 +22,7 @@
         </div>
 
         <!-- MAP -->
-        <div wire:ignore id="map"
-            class="w-full h-[80vh] rounded-xl border border-zinc-300 dark:border-zinc-700">
+        <div wire:ignore id="map" class="w-full h-[80vh] rounded-xl border border-zinc-300 dark:border-zinc-700">
         </div>
     </div>
 
@@ -129,9 +128,27 @@
 
             markerLayer.clearLayers();
 
+            const now = new Date();
+
+            // ✅ STRICT FILTER: only valid + active produces
+            const validProduces = filteredProduces.filter(p => {
+
+                if (!p.available_from || !p.available_until) return false;
+
+                const from = new Date(p.available_from);
+                const until = new Date(p.available_until);
+
+                return (
+                    p.status === 'available' &&
+                    now >= from &&
+                    now <= until
+                );
+            });
+
             const farmersMap = {};
 
-            filteredProduces.forEach(p => {
+            // ✅ GROUP ONLY VALID PRODUCES
+            validProduces.forEach(p => {
                 if (!p.farmer || !p.farmer.latitude || !p.farmer.longitude) return;
 
                 if (!farmersMap[p.farmer.id]) {
@@ -144,7 +161,9 @@
                 farmersMap[p.farmer.id].produces.push(p);
             });
 
+            // ❗ No valid produces = no markers
             Object.values(farmersMap).forEach(entry => {
+
                 const farmer = entry.farmer;
                 const farmerProduces = entry.produces;
 
@@ -154,18 +173,18 @@
                     const preorderUrl = `/customer/preorders/create/${prod.id}`;
 
                     rows += `
-                        <tr class="border-t">
-                            <td class="px-2 py-1">${prod.product}</td>
-                            <td class="px-2 py-1 text-center">${prod.quantity}</td>
-                            <td class="px-2 py-1 text-right">₱${prod.price}</td>
-                            <td class="px-2 py-1 text-center">
-                                <a href="${preorderUrl}"
-                                   class="bg-green-600 text-white text-xs px-2 py-1 rounded hover:bg-green-700">
-                                   Preorder
-                                </a>
-                            </td>
-                        </tr>
-                    `;
+                <tr class="border-t">
+                    <td class="px-2 py-1">${prod.product}</td>
+                    <td class="px-2 py-1 text-center">${prod.quantity}</td>
+                    <td class="px-2 py-1 text-right">₱${prod.price}</td>
+                    <td class="px-2 py-1 text-center">
+                        <a href="${preorderUrl}"
+                           class="bg-green-600 text-white text-xs px-2 py-1 rounded hover:bg-green-700">
+                           Preorder
+                        </a>
+                    </td>
+                </tr>
+            `;
                 });
 
                 const farmerImage = farmer.image ?
@@ -175,40 +194,43 @@
                 const managerId = farmerProduces[0].user_id;
 
                 const popup = `
-                    <div class="w-[300px] text-sm relative">
+            <div class="w-[300px] text-sm relative">
 
-                        <a href="javascript:void(0)"
-                            onclick="startChat(${managerId})"
-                            class="absolute top-1 right-1 text-blue-600 hover:text-blue-800">
-                            💬
-                        </a>
+                <a href="javascript:void(0)"
+                    onclick="startChat(${managerId})"
+                    class="absolute top-1 right-1 text-blue-600 hover:text-blue-800">
+                    💬
+                </a>
 
-                        <div class="flex justify-center mb-2">
-                            <img src="${farmerImage}"
-                                class="w-20 h-20 rounded-full object-cover border">
-                        </div>
+                <div class="flex justify-center mb-2">
+                    <img src="${farmerImage}"
+                        class="w-20 h-20 rounded-full object-cover border">
+                </div>
 
-                        <div class="text-center mb-2">
-                            <strong>${farmer.name}</strong><br>
-                            <span class="text-xs text-gray-600">
-                                ${farmer.barangay}, ${farmer.municipality}
-                            </span>
-                        </div>
+                <div class="text-center mb-2">
+                    <strong>${farmer.name}</strong><br>
+                    <span class="text-xs text-gray-600">
+                        ${farmer.barangay}, ${farmer.municipality}
+                    </span>
+                </div>
 
-                        <div class="max-h-36 overflow-y-auto border rounded">
-                            <table class="w-full text-xs">
-                                <tbody>${rows}</tbody>
-                            </table>
-                        </div>
+                <div class="max-h-36 overflow-y-auto border rounded">
+                    <table class="w-full text-xs">
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
 
-                    </div>
-                `;
+            </div>
+        `;
 
                 L.marker([farmer.latitude, farmer.longitude])
                     .addTo(markerLayer)
-                    .bindPopup(popup, { maxWidth: 340 });
+                    .bindPopup(popup, {
+                        maxWidth: 340
+                    });
             });
         }
+
 
         /**
          * EVENTS
@@ -230,18 +252,20 @@
     <script>
         function startChat(managerId) {
             fetch("{{ route('chat.start') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({ user_id: managerId })
-            })
-            .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;
-                }
-            });
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        user_id: managerId
+                    })
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                });
         }
     </script>
 
