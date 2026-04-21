@@ -24,6 +24,9 @@ class CreateNewUser implements CreatesNewUsers
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => $this->passwordRules(),
+            // NEW
+            'municipality' => ['required', 'string', 'max:255'],
+            'barangay' => ['required', 'string', 'max:255'],
         ])->validate();
 
         return User::create([
@@ -31,6 +34,9 @@ class CreateNewUser implements CreatesNewUsers
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
             'role' => UserRole::User, // Default role for new registrations
+            // NEW
+            'municipality' => $input['municipality'],
+            'barangay' => $input['barangay'],
         ]);
     }
 }
