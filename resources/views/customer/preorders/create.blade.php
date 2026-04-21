@@ -32,6 +32,12 @@
                     <p class="text-sm text-gray-600">
                         {{ $produce->farmer->contact }}
                     </p>
+    
+                    <p class="text-s text-gray-500 flex items-center gap-1">
+                        {{ $produce->farmer->barangay }},
+                        {{ $produce->farmer->municipality }}
+                    </p>
+
                 </div>
 
                 {{-- Message Button (RIGHT aligned) --}}
