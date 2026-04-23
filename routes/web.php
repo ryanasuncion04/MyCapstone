@@ -11,6 +11,7 @@ use App\Http\Controllers\Manager\DashboardController as ManagerDashboardControll
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\RatingController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,6 +27,8 @@ Route::middleware(['auth', 'role:user'])
             ->name('map');
         Route::get('/api/produce-map', [UserDashboardController::class, 'produceMap'])
             ->name('produce.map');
+        Route::post('/preorders/{preorder}/rate', [RatingController::class, 'store'])
+            ->name('preorders.rate');
     });
 
 Route::middleware(['auth', 'role:admin'])
@@ -50,10 +53,14 @@ Route::middleware(['auth', 'role:admin'])
             ->name('produce.visualization.municipality');
 
 
-         Route::get('/municipality-map', [AdminDashboardController::class, 'municipalityMap']
+        Route::get(
+            '/municipality-map',
+            [AdminDashboardController::class, 'municipalityMap']
         )->name('municipality.map');
 
-        Route::get('/municipality-map/{municipality}', [AdminDashboardController::class, 'municipalityData']
+        Route::get(
+            '/municipality-map/{municipality}',
+            [AdminDashboardController::class, 'municipalityData']
         )->name('municipality.map.data');
 
     });

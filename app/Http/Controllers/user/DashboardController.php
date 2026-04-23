@@ -11,16 +11,19 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Load ALL farm produces system-wide
-       // $produces = FarmProduce::with('farmer')->get();
-
-        $produces = FarmProduce::with('farmer')
+        $produces = FarmProduce::with([
+            'farmer.ratings.customer'
+        ])
             ->where('status', 'available')
             ->whereColumn('quantity', '>', 'reserved_quantity')
             ->get();
-      //  dd($produces);
 
-               // ✅ ADD THIS (for dropdown filter)
+        // ✅ attach computed average rating to farmer
+        $produces->each(function ($produce) {
+            $produce->farmer->average_rating =
+                $produce->farmer->ratings->avg('rating') ?? 0;
+        });
+
         $products = FarmProduce::query()
             ->where('status', 'available')
             ->whereColumn('quantity', '>', 'reserved_quantity')
@@ -30,7 +33,7 @@ class DashboardController extends Controller
         return view('customer.products.index', compact('produces', 'products'));
     }
 
-     public function map()
+    public function map()
     {
         // Available produce list for filter
         $products = FarmProduce::query()
@@ -42,7 +45,7 @@ class DashboardController extends Controller
         return view('customer.products.mapProduce', compact('products'));
     }
 
-      public function produceMap(Request $request)
+    public function produceMap(Request $request)
     {
         $product = $request->get('product');
 

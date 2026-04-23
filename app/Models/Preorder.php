@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\FarmProduce;
+use App\Models\User;    
+use App\Models\Ratings;
 class Preorder extends Model
 {
     protected $fillable = [
@@ -40,5 +42,9 @@ class Preorder extends Model
     public function isRejected(): bool
     {
         return $this->status === 'rejected';
+    }
+    public function rating()
+    {
+        return $this->hasOne(Ratings::class);
     }
 }

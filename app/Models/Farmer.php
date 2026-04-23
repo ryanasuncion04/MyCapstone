@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use App\Models\FarmProduce;
+use App\Models\Ratings;
 
 // app/Models/Farmer.php
 
@@ -18,7 +20,7 @@ class Farmer extends Model
         'longitude',
         'image',
     ];
-        protected static function booted()
+    protected static function booted()
     {
         static::deleting(function ($farmer) {
             if ($farmer->image && Storage::disk('public')->exists($farmer->image)) {
@@ -30,5 +32,16 @@ class Farmer extends Model
     {
         return $this->hasMany(FarmProduce::class);
     }
+
+    public function ratings()
+    {
+        return $this->hasMany(Ratings::class);
+    }
+
+    public function averageRating()
+    {
+        return $this->ratings()->avg('rating');
+    }
+
 }
 

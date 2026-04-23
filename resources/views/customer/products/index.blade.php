@@ -7,7 +7,6 @@
 
         <!-- FILTERS -->
         <div class="flex gap-4 items-center">
-            <!-- PRODUCT -->
             <select id="produceFilter" class="border rounded-lg p-2 text-sm w-64">
                 <option value="">All Produce</option>
                 @foreach ($products as $product)
@@ -15,12 +14,10 @@
                 @endforeach
             </select>
 
-            <!-- MUNICIPALITY -->
             <select id="municipalityFilter" class="border rounded-lg p-2 text-sm w-64">
                 <option value="">All Municipalities</option>
             </select>
 
-            <!-- FARMER SEARCH -->
             <input type="text" id="farmerFilter" placeholder="Search farmer..."
                 class="border rounded-lg p-2 text-sm w-64" />
         </div>
@@ -29,6 +26,7 @@
         <div wire:ignore id="map" class="w-full h-[80vh] rounded-xl border border-zinc-300 dark:border-zinc-700">
         </div>
     </div>
+
     <script>
         const produces = @json($produces);
 
@@ -50,7 +48,6 @@
 
             markerLayer = L.layerGroup().addTo(map);
 
-            // 📍 GET USER LOCATION
             map.locate({
                 setView: false
             });
@@ -77,7 +74,6 @@
                     }).addTo(map);
 
                     populateMunicipalities(data);
-
                     applyFilters();
 
                     setTimeout(() => map.invalidateSize(), 300);
@@ -107,14 +103,12 @@
 
             let filtered = produces;
 
-            // PRODUCT
             if (selectedProduct) {
                 filtered = filtered.filter(p =>
                     p.product.toLowerCase() === selectedProduct
                 );
             }
 
-            // MUNICIPALITY
             if (selectedMunicipality) {
                 filtered = filtered.filter(p =>
                     p.farmer &&
@@ -122,7 +116,6 @@
                 );
             }
 
-            // FARMER NAME SEARCH 🔥
             if (farmerSearch) {
                 filtered = filtered.filter(p =>
                     p.farmer &&
@@ -141,8 +134,6 @@
             const from = new Date(String(p.available_from).replace(' ', 'T'));
             const until = new Date(String(p.available_until).replace(' ', 'T'));
 
-            if (isNaN(from) || isNaN(until)) return false;
-
             return (
                 p.status === 'available' &&
                 now >= from &&
@@ -152,15 +143,8 @@
 
         function formatDate(dateStr) {
             if (!dateStr) return '—';
-
             const d = new Date(String(dateStr).replace(' ', 'T'));
-            if (isNaN(d)) return '—';
-
-            return d.toLocaleDateString('en-PH', {
-                year: 'numeric',
-                month: 'short',
-                day: '2-digit'
-            });
+            return isNaN(d) ? '—' : d.toLocaleDateString('en-PH');
         }
 
         function renderMarkers(filteredProduces) {
@@ -189,79 +173,107 @@
                 const farmer = entry.farmer;
                 const products = entry.produces;
 
+                // ⭐ calculate rating safely
+                const avgRating = farmer.average_rating ?
+                    parseFloat(farmer.average_rating).toFixed(1) :
+                    '0.0';
+
                 let rows = '';
 
                 products.forEach(prod => {
                     const preorderUrl = `/customer/preorders/create/${prod.id}`;
 
                     rows += `
-                    <tr class="border-t">
-                        <td class="px-2 py-1">${prod.product}</td>
-                        <td class="px-2 py-1 text-center">${prod.quantity} Kgs</td>
-                        <td class="px-2 py-1 text-right">₱${prod.price}</td>
-                        <td class="px-2 py-1 text-center">
-                            <a href="${preorderUrl}"
-                                class="bg-green-600 !text-white text-xs px-3 py-1.5 rounded font-semibold hover:bg-green-700">
-                                Preorder
-                            </a>
-                        </td>
-                    </tr>
-
-                    <tr class="bg-gray-50">
-                        <td colspan="4" class="px-2 py-1 text-xs text-gray-600">
-                            📅 ${formatDate(prod.available_from)} → ${formatDate(prod.available_until)}
-                        </td>
-                    </tr>
-                `;
+                        <tr class="border-t">
+                            <td class="px-2 py-1">${prod.product}</td>
+                            <td class="px-2 py-1 text-center">${prod.quantity} Kgs</td>
+                            <td class="px-2 py-1 text-right">₱${prod.price}</td>
+                            <td class="px-2 py-1 text-center">
+                                <a href="${preorderUrl}"
+                                    class="bg-green-600 !text-white text-xs px-3 py-1.5 rounded font-semibold hover:bg-green-700">
+                                    Preorder
+                                </a>
+                            </td>
+                        </tr>
+                    `;
                 });
 
                 const farmerImage = farmer.image ?
                     `/storage/${farmer.image}` :
                     `https://ui-avatars.com/api/?name=${encodeURIComponent(farmer.name)}`;
 
-                const popup = `
-                <div class="w-[320px] text-sm">
+                // ⭐ RATING COMMENTS HTML
+                let reviewsHtml = '';
 
-                    <div class="flex items-center gap-2 mb-2">
-                        <img src="${farmerImage}"
-                            class="w-12 h-12 rounded-full border object-cover">
-
-                        <div>
-                            <strong>${farmer.name}</strong><br>
-                            <span class="text-xs text-gray-500">
-                                ${farmer.barangay}, ${farmer.municipality}
+                if (farmer.ratings && farmer.ratings.length > 0) {
+                    reviewsHtml = farmer.ratings.slice(0, 2).map(r => `
+                        <div class="text-xs border-b py-1">
+                            <span class="text-yellow-500">★ ${r.rating}</span>
+                            <span class="text-gray-600">
+                                ${r.comment ? `"${r.comment}"` : 'No comment'}
                             </span>
+                            <div class="text-[10px] text-gray-400">
+                                by ${r.customer?.name ?? 'User'}
+                            </div>
                         </div>
+                    `).join('');
+                } else {
+                    reviewsHtml = `<div class="text-xs text-gray-400">No reviews yet</div>`;
+                }
+
+                const popup = `
+                    <div class="w-[320px] text-sm">
+
+                        <div class="flex items-center gap-2 mb-2">
+                            <img src="${farmerImage}"
+                                class="w-12 h-12 rounded-full border object-cover">
+
+                            <div>
+                                <strong>${farmer.name}</strong><br>
+
+                                <span class="text-xs text-gray-500">
+                                    ${farmer.barangay}, ${farmer.municipality}
+                                </span>
+
+                                <div class="text-xs text-yellow-600 mt-1">
+                                    ⭐ ${avgRating} / 5
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="max-h-40 overflow-y-auto border rounded">
+                            <table class="w-full text-xs">
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+
+                        <!-- 💬 REVIEWS -->
+                        <div class="mt-2 border-t pt-2">
+                            <div class="text-xs font-semibold mb-1">Recent Reviews</div>
+                            ${reviewsHtml}
+                        </div>
+
+                        <button onclick="routeTo(${farmer.latitude}, ${farmer.longitude})"
+                            class="mt-2 w-full bg-blue-600 text-white text-xs py-2 rounded hover:bg-blue-700">
+                            📍 Route Here
+                        </button>
+
                     </div>
-
-                    <div class="max-h-40 overflow-y-auto border rounded">
-                        <table class="w-full text-xs">
-                            <tbody>${rows}</tbody>
-                        </table>
-                    </div>
-
-                    <!-- 🚗 ROUTE BUTTON -->
-                    <button onclick="routeTo(${farmer.latitude}, ${farmer.longitude})"
-                        class="mt-2 w-full bg-blue-600 text-white text-xs py-2 rounded hover:bg-blue-700">
-                        📍 Route Here
-                    </button>
-
-                </div>
-            `;
+                `;
 
                 const icon = L.divIcon({
                     className: '',
                     html: `
-                    <div class="relative flex items-center justify-center">
-                        <div class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
-                            <div class="w-10 h-10 rounded-full border-2 border-blue-600 overflow-hidden">
-                                <img src="${products[0].image ? '/storage/' + products[0].image : farmerImage}"
-                                     class="w-full h-full object-cover">
+                        <div class="relative flex items-center justify-center">
+                            <div class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
+                                <div class="w-10 h-10 rounded-full border-2 border-blue-600 overflow-hidden">
+                                    <img src="${products[0].image ? '/storage/' + products[0].image : farmerImage}"
+                                         class="w-full h-full object-cover">
+                                </div>
                             </div>
+                            <div class="absolute -bottom-1 w-3 h-3 bg-white rotate-45 border-r border-b border-blue-600"></div>
                         </div>
-                        <div class="absolute -bottom-1 w-3 h-3 bg-white rotate-45 border-r border-b border-blue-600"></div>
-                    </div>
-                `,
+                    `,
                     iconSize: [48, 52],
                     iconAnchor: [24, 52]
                 });
@@ -274,11 +286,9 @@
             });
         }
 
-        // 🚗 ROUTING FUNCTION
         function routeTo(lat, lng) {
-
             if (!userLatLng) {
-                alert("Location not detected yet. Please allow location access.");
+                alert("Location not detected yet.");
                 return;
             }
 
@@ -306,6 +316,5 @@
 
         document.addEventListener('livewire:navigated', initIlocosProductsMap);
     </script>
-
 
 </x-layouts.app>
