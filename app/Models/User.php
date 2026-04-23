@@ -26,6 +26,7 @@ class User extends Authenticatable
         'role',
         'municipality',
         'barangay',
+        'contact_number',
     ];
 
     /**

@@ -12,6 +12,10 @@
 
             <!-- Email -->
             <flux:input name="email" :label="__('Email address')" :value="old('email')" type="email" required />
+            
+            <!-- Contact Number -->
+            <flux:input name="contact_number" :label="__('Contact Number')" :value="old('contact_number')" type="text" required />
+
 
             <!-- Municipality -->
             <div>
@@ -41,6 +45,7 @@
                 Create account
             </flux:button>
         </form>
+        
 
         <div class="text-center text-sm text-zinc-600">
             Already have an account?

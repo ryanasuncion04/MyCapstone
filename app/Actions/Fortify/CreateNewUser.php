@@ -27,6 +27,7 @@ class CreateNewUser implements CreatesNewUsers
             // NEW
             'municipality' => ['required', 'string', 'max:255'],
             'barangay' => ['required', 'string', 'max:255'],
+            'contact_number' => ['required', 'string', 'max:255'],
         ])->validate();
 
         return User::create([
@@ -37,6 +38,7 @@ class CreateNewUser implements CreatesNewUsers
             // NEW
             'municipality' => $input['municipality'],
             'barangay' => $input['barangay'],
+            'contact_number' => $input['contact_number'],
         ]);
     }
 }

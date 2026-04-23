@@ -37,8 +37,12 @@
                     {{ __('Preorders') }}
                 </flux:navlist.item>
 
-                <flux:navlist.item icon="envelope" :href="route('chat.mindex')" :current="request()->routeIs('chat.*')"
-                    wire:navigate>{{ __('Messages') }}</flux:navlist.item>
+                <flux:navlist.item icon="users" :href="route('manager.buyerslist')"
+                    :current="request()->routeIs('manager.buyerslist')" wire:navigate>
+                    {{ __('List of Buyers') }} </flux:navlist.item>
+
+                <flux:navlist.item icon="envelope" :href="route('chat.mindex')"
+                    :current="request()->routeIs('chat.*')" wire:navigate>{{ __('Messages') }}</flux:navlist.item>
             </flux:navlist.group>
         </flux:navlist>
 

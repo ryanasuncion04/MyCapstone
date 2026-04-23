@@ -63,6 +63,9 @@ Route::middleware(['auth', 'role:manager'])
     ->group(function () {
         Route::get('/dashboard', [ManagerDashboardController::class, 'index'])
             ->name('dashboard');
+        //route for producer looking of buyer
+        Route::get('/buyerslist', [ManagerDashboardController::class, 'buyersList'])
+            ->name('buyerslist');
 
 
     });

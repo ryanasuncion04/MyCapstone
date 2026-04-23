@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('municipality')->nullable();
             $table->string('barangay')->nullable();
+            $table->string('contact_number')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
