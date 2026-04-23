@@ -19,6 +19,10 @@
             <select id="municipalityFilter" class="border rounded-lg p-2 text-sm w-64">
                 <option value="">All Municipalities</option>
             </select>
+
+            <!-- FARMER SEARCH -->
+            <input type="text" id="farmerFilter" placeholder="Search farmer..."
+                class="border rounded-lg p-2 text-sm w-64" />
         </div>
 
         <!-- MAP -->
@@ -97,21 +101,32 @@
         }
 
         function applyFilters() {
-            const selectedProduct = document.getElementById('produceFilter').value;
+            const selectedProduct = document.getElementById('produceFilter').value.toLowerCase();
             const selectedMunicipality = document.getElementById('municipalityFilter').value;
+            const farmerSearch = document.getElementById('farmerFilter').value.toLowerCase();
 
             let filtered = produces;
 
+            // PRODUCT
             if (selectedProduct) {
                 filtered = filtered.filter(p =>
-                    p.product.toLowerCase() === selectedProduct.toLowerCase()
+                    p.product.toLowerCase() === selectedProduct
                 );
             }
 
+            // MUNICIPALITY
             if (selectedMunicipality) {
                 filtered = filtered.filter(p =>
                     p.farmer &&
                     p.farmer.municipality === selectedMunicipality
+                );
+            }
+
+            // FARMER NAME SEARCH 🔥
+            if (farmerSearch) {
+                filtered = filtered.filter(p =>
+                    p.farmer &&
+                    p.farmer.name.toLowerCase().includes(farmerSearch)
                 );
             }
 
@@ -286,6 +301,7 @@
 
             document.getElementById('produceFilter').addEventListener('change', applyFilters);
             document.getElementById('municipalityFilter').addEventListener('change', applyFilters);
+            document.getElementById('farmerFilter').addEventListener('input', applyFilters);
         });
 
         document.addEventListener('livewire:navigated', initIlocosProductsMap);
