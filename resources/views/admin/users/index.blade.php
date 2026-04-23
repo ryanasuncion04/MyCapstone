@@ -8,8 +8,8 @@
                     <th class="text-left py-2">Name</th>
                     <th class="text-left py-2">Email</th>
                     <th class="text-left py-2">Municipality</th>
-                    <th class="text-left py-2">Role</th>
-                    <th class="text-right py-2">Action</th>
+                    <th class="text-left py-2">Current Role</th>
+                    <th class="text-right py-2">Edit Role</th>
                 </tr>
             </thead>
 
@@ -44,8 +44,16 @@
 
                         {{-- ROLE --}}
                         <td class="py-2">
+                            @php
+                                $roleLabels = [
+                                    'user' => 'Buyer',
+                                    'manager' => 'Producer',
+                                    'admin' => 'Administrator',
+                                ];
+                            @endphp
+
                             <span class="px-2 py-1 text-xs rounded-lg border">
-                                {{ ucfirst($user->role->value) }}
+                                {{ $roleLabels[$user->role->value] ?? ucfirst($user->role->value) }}
                             </span>
                         </td>
 
@@ -59,6 +67,12 @@
 
                                     @php
                                         $roles = ['user', 'manager', 'admin'];
+
+                                        $roleLabels = [
+                                            'user' => 'Buyer',
+                                            'manager' => 'Producer',
+                                            'admin' => 'Administrator',
+                                        ];
                                     @endphp
 
                                     <select name="role" class="border rounded-lg p-1 text-sm"
@@ -66,7 +80,7 @@
                                         <option disabled>Change role</option>
                                         @foreach ($roles as $role)
                                             <option value="{{ $role }}" @selected($user->role->value === $role)>
-                                                {{ ucfirst($role) }}
+                                                {{ $roleLabels[$role] ?? ucfirst($role) }}
                                             </option>
                                         @endforeach
                                     </select>
