@@ -9,19 +9,24 @@
 
         {{-- SIDE PANEL --}}
         <div class="space-y-4">
+
             <h2 class="text-xl font-semibold" id="municipalityTitle">
                 Click a Municipality
             </h2>
 
+            {{-- PRODUCT FILTER --}}
+            <div>
+                <label class="text-sm text-gray-600">Filter by Product</label>
+                <select id="productFilter" class="w-full border rounded-lg p-2 text-sm mt-1">
+                    <option value="">All Products</option>
+                </select>
+            </div>
+
+            {{-- SUMMARY --}}
             <div class="grid grid-cols-2 gap-4">
                 <div class="p-4 border rounded-xl">
                     <p class="text-sm text-gray-500">Total Quantity</p>
                     <p class="text-xl font-bold" id="totalQuantity">—</p>
-                </div>
-
-                <div class="p-4 border rounded-xl">
-                    <p class="text-sm text-gray-500">Total Revenue</p>
-                    <p class="text-xl font-bold" id="totalRevenue">—</p>
                 </div>
 
                 <div class="p-4 border rounded-xl">
@@ -35,19 +40,27 @@
                 </div>
             </div>
 
+            {{-- PRODUCTS --}}
             <div>
-                <p class="font-semibold">Top Products</p>
-                <ul id="topProducts" class="list-disc pl-5 text-sm"></ul>
+                <p class="font-semibold">Available Products</p>
+                <ul id="productsList" class="list-disc pl-5 text-sm"></ul>
             </div>
+
+            {{-- TOP FARMERS --}}
+            <div>
+                <p class="font-semibold">Top Farmer per Product</p>
+                <ul id="topFarmers" class="list-disc pl-5 text-sm"></ul>
+            </div>
+
         </div>
 
     </div>
-
 
     <script>
         let map;
         let municipalityLayer;
         const highlightedMunicipality = {};
+        let selectedProduct = '';
 
         document.addEventListener('DOMContentLoaded', () => {
 
@@ -58,6 +71,16 @@
             }).addTo(map);
 
             loadMunicipalities();
+
+            document.getElementById('productFilter').addEventListener('change', function() {
+                selectedProduct = this.value;
+
+                const municipality = document.getElementById('municipalityTitle').innerText;
+
+                if (municipality !== 'Click a Municipality') {
+                    loadMunicipalityData(municipality);
+                }
+            });
         });
 
         function loadMunicipalities() {
@@ -65,7 +88,6 @@
                 .then(res => res.json())
                 .then(geojson => {
 
-                    // Group features by Municipality
                     const municipalities = {};
                     geojson.features.forEach(f => {
                         const name = f.properties.Municipality;
@@ -106,8 +128,6 @@
         }
 
         function highlightMunicipality(name) {
-
-            // Reset all
             Object.values(highlightedMunicipality).forEach(group => {
                 group.setStyle({
                     fillColor: '#60a5fa',
@@ -115,7 +135,6 @@
                 });
             });
 
-            // Highlight clicked municipality
             highlightedMunicipality[name].setStyle({
                 fillColor: '#f97316',
                 fillOpacity: 0.7
@@ -126,7 +145,7 @@
 
             document.getElementById('municipalityTitle').innerText = municipality;
 
-            fetch(`/admin/municipality-map/${encodeURIComponent(municipality)}`)
+            fetch(`/admin/municipality-map/${encodeURIComponent(municipality)}?product=${selectedProduct}`)
                 .then(res => res.json())
                 .then(data => {
 
@@ -135,23 +154,46 @@
                     document.getElementById('totalQuantity').innerText =
                         Number(summary.total_quantity || 0).toLocaleString();
 
-                    document.getElementById('totalRevenue').innerText =
-                        '₱' + Number(summary.total_revenue || 0).toLocaleString();
-
                     document.getElementById('avgPrice').innerText =
                         '₱' + Number(summary.avg_price || 0).toFixed(2);
 
                     document.getElementById('farmerCount').innerText =
                         summary.farmer_count || 0;
 
-                    const list = document.getElementById('topProducts');
-                    list.innerHTML = '';
+                    // Populate dropdown once
+                    const select = document.getElementById('productFilter');
+                    if (select.options.length === 1) {
+                        data.products.forEach(p => {
+                            select.innerHTML += `<option value="${p.product}">${p.product}</option>`;
+                        });
+                    }
 
-                    data.topProducts.forEach(p => {
-                        list.innerHTML += `<li>${p.product} (${p.total_quantity})</li>`;
+                    // PRODUCTS
+                    const productsList = document.getElementById('productsList');
+                    productsList.innerHTML = '';
+
+                    data.products.forEach(p => {
+                        productsList.innerHTML += `
+                    <li>
+                        ${p.product} — ₱${Number(p.avg_price).toFixed(2)}
+                        (Qty: ${p.total_quantity})
+                    </li>
+                `;
                     });
-                });
 
+                    // TOP FARMERS
+                    const farmersList = document.getElementById('topFarmers');
+                    farmersList.innerHTML = '';
+
+                    data.topFarmersPerProduct.forEach(f => {
+                        farmersList.innerHTML += `
+                    <li>
+                        ${f.product}: ${f.name} (${f.total_quantity})
+                    </li>
+                `;
+                    });
+
+                });
         }
     </script>
 

@@ -200,39 +200,74 @@ class DashboardController extends Controller
         return view('admin.produce.municipality');
     }
 
+
     public function municipalityData($municipality)
     {
-        $startOfMonth = Carbon::now()->startOfMonth();
+        $municipalityLower = strtolower($municipality);
+        $product = request('product');
 
+        /*
+        |----------------------------------------------------------
+        | SUMMARY
+        |----------------------------------------------------------
+        */
         $summary = DB::table('farm_produces')
             ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
             ->where('farm_produces.status', 'available')
-            ->whereRaw('LOWER(farmers.municipality) = ?', [strtolower($municipality)])
-            // ->where('farm_produces.created_at', '>=', $startOfMonth)
+            ->whereRaw('LOWER(farmers.municipality) = ?', [$municipalityLower])
+            ->when($product, fn($q) => $q->where('farm_produces.product', $product))
             ->selectRaw('
             COALESCE(SUM(quantity), 0) as total_quantity,
-            COALESCE(SUM(quantity * price), 0) as total_revenue,
             COALESCE(AVG(price), 0) as avg_price,
             COUNT(DISTINCT farmers.id) as farmer_count
         ')
             ->first();
 
-        $topProducts = DB::table('farm_produces')
+        /*
+        |----------------------------------------------------------
+        | PRODUCTS
+        |----------------------------------------------------------
+        */
+        $products = DB::table('farm_produces')
             ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
-            ->whereRaw('LOWER(farmers.municipality) = ?', [strtolower($municipality)])
             ->where('farm_produces.status', 'available')
+            ->whereRaw('LOWER(farmers.municipality) = ?', [$municipalityLower])
+            ->when($product, fn($q) => $q->where('farm_produces.product', $product))
             ->groupBy('product')
             ->select(
                 'product',
+                DB::raw('AVG(price) as avg_price'),
                 DB::raw('SUM(quantity) as total_quantity')
             )
             ->orderByDesc('total_quantity')
-            ->take(5)
             ->get();
+
+        /*
+        |----------------------------------------------------------
+        | TOP FARMERS PER PRODUCT
+        |----------------------------------------------------------
+        */
+        $topFarmersPerProduct = DB::table('farm_produces as fp')
+            ->join('farmers as f', 'fp.farmer_id', '=', 'f.id')
+            ->where('fp.status', 'available')
+            ->whereRaw('LOWER(f.municipality) = ?', [$municipalityLower])
+            ->when($product, fn($q) => $q->where('fp.product', $product))
+            ->select(
+                'fp.product',
+                'f.name',
+                DB::raw('SUM(fp.quantity) as total_quantity')
+            )
+            ->groupBy('fp.product', 'f.name')
+            ->orderByDesc('total_quantity')
+            ->get()
+            ->groupBy('product')
+            ->map(fn($group) => $group->first())
+            ->values();
 
         return response()->json([
             'summary' => $summary,
-            'topProducts' => $topProducts
+            'products' => $products,
+            'topFarmersPerProduct' => $topFarmersPerProduct,
         ]);
     }
 
