@@ -59,9 +59,10 @@ class DashboardController extends Controller
 
     public function data(Request $request)
     {
-        $product = $request->get('product');
-        $municipality = $request->get('municipality');
-        $range = $request->get('range', 'monthly');
+        $product = $request->product;
+        $municipality = $request->municipality;
+        $range = $request->range ?? 'monthly';
+        $limit = $request->limit ?? 10;
 
         $dateFormat = match ($range) {
             'daily' => '%Y-%m-%d',
@@ -69,16 +70,14 @@ class DashboardController extends Controller
             default => '%Y-%m',
         };
 
-        /*
-        |------------------------------------------------------------------
-        | 1. PRODUCE TRENDS
-        |------------------------------------------------------------------
-        */
-        $trends = FarmProduce::query()
-            ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
+        $baseQuery = FarmProduce::query()
+            ->leftJoin('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
             ->where('farm_produces.status', 'available')
             ->when($product, fn($q) => $q->where('farm_produces.product', $product))
-            ->when($municipality, fn($q) => $q->where('farmers.municipality', $municipality))
+            ->when($municipality, fn($q) => $q->where('farmers.municipality', $municipality));
+
+        // 1. Trends
+        $trends = (clone $baseQuery)
             ->select(
                 DB::raw("DATE_FORMAT(farm_produces.created_at, '{$dateFormat}') as period"),
                 DB::raw('SUM(quantity) as total_quantity')
@@ -87,45 +86,28 @@ class DashboardController extends Controller
             ->orderBy('period')
             ->get();
 
-        /*
-        |------------------------------------------------------------------
-        | 2. PRODUCT DISTRIBUTION
-        |------------------------------------------------------------------
-        */
-        $productDistribution = FarmProduce::query()
-            ->where('status', 'available')
-            ->select('product', DB::raw('SUM(quantity) as total'))
-            ->groupBy('product')
+        // 2. Product Distribution
+        $productDistribution = (clone $baseQuery)
+            ->select('farm_produces.product', DB::raw('SUM(quantity) as total'))
+            ->groupBy('farm_produces.product')
+            ->orderByDesc('total')
+            ->limit($limit)
             ->get();
 
-        /*
-        |------------------------------------------------------------------
-        | 3. AVERAGE PRICE PER MUNICIPALITY
-        |------------------------------------------------------------------
-        */
-        $avgPrice = FarmProduce::query()
-            ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
-            ->select(
-                'farmers.municipality',
-                DB::raw('AVG(price) as avg_price')
-            )
+        // 3. Avg Price
+        $avgPrice = (clone $baseQuery)
+            ->select('farmers.municipality', DB::raw('AVG(price) as avg_price'))
             ->groupBy('farmers.municipality')
+            ->orderByDesc('avg_price')
+            ->limit($limit)
             ->get();
 
-        /*
-        |------------------------------------------------------------------
-        | 4. TOP FARMERS BY YIELD
-        |------------------------------------------------------------------
-        */
-        $yieldPerFarmer = FarmProduce::query()
-            ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
-            ->select(
-                'farmers.name',
-                DB::raw('SUM(quantity) as total_quantity')
-            )
+        // 4. Yield per Farmer
+        $yieldPerFarmer = (clone $baseQuery)
+            ->select('farmers.name', DB::raw('SUM(quantity) as total_quantity'))
             ->groupBy('farmers.name')
             ->orderByDesc('total_quantity')
-            ->limit(10)
+            ->limit($limit)
             ->get();
 
         return response()->json([

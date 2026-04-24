@@ -24,44 +24,46 @@
                 <option value="weekly">Weekly</option>
                 <option value="daily">Daily</option>
             </select>
+
+            <select id="limit" class="border rounded-lg p-2">
+                <option value="5">Top 5</option>
+                <option value="10" selected>Top 10</option>
+                <option value="20">Top 20</option>
+            </select>
         </div>
 
-        {{-- Analytics Cards --}}
+        {{-- Charts --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            {{-- Produce Trend --}}
-            <div class="p-4 border rounded-xl shadow-sm bg-white">
-                <h2 class="font-semibold mb-3">Produce Trend Over Time</h2>
+            <div class="p-4 border rounded-xl bg-white">
+                <h2 class="font-semibold mb-3">Produce Trend</h2>
                 <canvas id="trendChart"></canvas>
             </div>
 
-            {{-- Product Distribution --}}
-            <div class="p-4 border rounded-xl shadow-sm bg-white">
+            <div class="p-4 border rounded-xl bg-white">
                 <h2 class="font-semibold mb-3">Product Distribution</h2>
                 <canvas id="productChart"></canvas>
             </div>
 
-            {{-- Average Price --}}
-            <div class="p-4 border rounded-xl shadow-sm bg-white">
-                <h2 class="font-semibold mb-3">Average Price per Municipality</h2>
+            <div class="p-4 border rounded-xl bg-white">
+                <h2 class="font-semibold mb-3">Avg Price</h2>
                 <canvas id="avgPriceChart"></canvas>
             </div>
 
-            {{-- Yield per Farmer --}}
-            <div class="p-4 border rounded-xl shadow-sm bg-white">
-                <h2 class="font-semibold mb-3">Top Farmers by Yield</h2>
+            <div class="p-4 border rounded-xl bg-white">
+                <h2 class="font-semibold mb-3">Top Farmers</h2>
                 <canvas id="yieldChart"></canvas>
             </div>
-
         </div>
     </div>
 
-   
+    {{-- Chart.js --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
         const productEl = document.getElementById('product');
         const municipalityEl = document.getElementById('municipality');
         const rangeEl = document.getElementById('range');
+        const limitEl = document.getElementById('limit');
 
         let charts = {};
 
@@ -69,13 +71,14 @@
             const product = productEl.value;
             const municipality = municipalityEl.value;
             const range = rangeEl.value;
+            const limit = limitEl.value;
 
             fetch(
-                    `{{ route('admin.produce.analytics.data') }}?product=${product}&municipality=${municipality}&range=${range}`)
+                    `{{ route('admin.produce.analytics.data') }}?product=${product}&municipality=${municipality}&range=${range}&limit=${limit}`)
                 .then(res => res.json())
                 .then(data => {
                     renderTrend(data.trends);
-                    renderProductDistribution(data.productDistribution);
+                    renderProduct(data.productDistribution);
                     renderAvgPrice(data.avgPrice);
                     renderYield(data.yieldPerFarmer);
                 });
@@ -84,7 +87,7 @@
         function renderTrend(data) {
             charts.trend?.destroy();
 
-            charts.trend = new Chart(trendChart, {
+            charts.trend = new Chart(document.getElementById('trendChart'), {
                 type: 'line',
                 data: {
                     labels: data.map(d => d.period),
@@ -98,16 +101,16 @@
             });
         }
 
-        function renderProductDistribution(data) {
+        function renderProduct(data) {
             charts.product?.destroy();
 
-            charts.product = new Chart(productChart, {
+            charts.product = new Chart(document.getElementById('productChart'), {
                 type: 'bar',
                 data: {
                     labels: data.map(d => d.product),
                     datasets: [{
-                        label: 'Total Quantity',
-                        data: data.map(d => d.total),
+                        label: 'Quantity',
+                        data: data.map(d => d.total)
                     }]
                 }
             });
@@ -116,13 +119,13 @@
         function renderAvgPrice(data) {
             charts.avg?.destroy();
 
-            charts.avg = new Chart(avgPriceChart, {
+            charts.avg = new Chart(document.getElementById('avgPriceChart'), {
                 type: 'bar',
                 data: {
                     labels: data.map(d => d.municipality),
                     datasets: [{
-                        label: 'Average Price',
-                        data: data.map(d => d.avg_price),
+                        label: 'Avg Price',
+                        data: data.map(d => d.avg_price)
                     }]
                 }
             });
@@ -131,13 +134,13 @@
         function renderYield(data) {
             charts.yield?.destroy();
 
-            charts.yield = new Chart(yieldChart, {
+            charts.yield = new Chart(document.getElementById('yieldChart'), {
                 type: 'bar',
                 data: {
                     labels: data.map(d => d.name),
                     datasets: [{
-                        label: 'Total Yield',
-                        data: data.map(d => d.total_quantity),
+                        label: 'Yield',
+                        data: data.map(d => d.total_quantity)
                     }]
                 }
             });
@@ -146,6 +149,7 @@
         productEl.addEventListener('change', loadAnalytics);
         municipalityEl.addEventListener('change', loadAnalytics);
         rangeEl.addEventListener('change', loadAnalytics);
+        limitEl.addEventListener('change', loadAnalytics);
 
         loadAnalytics();
     </script>
