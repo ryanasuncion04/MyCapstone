@@ -21,11 +21,6 @@
             class="h-[450px] rounded-xl border"
         ></div>
 
-        {{-- TOP 3 --}}
-        <div>
-            <h2 class="text-lg font-semibold mb-2">Top 3 Producing Municipalities</h2>
-            <ul id="top3" class="list-disc ml-5"></ul>
-        </div>
 
         {{-- TREND CHART --}}
         <div>
@@ -106,13 +101,6 @@
                                 }
                             }).addTo(map);
                         });
-
-                    const top3 = document.getElementById('top3');
-                    top3.innerHTML = '';
-                    res.top3.forEach(t => {
-                        top3.innerHTML +=
-                            `<li>${t.municipality} — ${t.total_quantity}</li>`;
-                    });
                 });
         }
 
