@@ -26,6 +26,7 @@ class DashboardController extends Controller
     public function produceMap(Request $request)
     {
         $product = $request->get('product');
+        $limit = $request->get('limit', 3); // 👈 default = 3
 
         $query = FarmProduce::query()
             ->join('farmers', 'farm_produces.farmer_id', '=', 'farmers.id')
@@ -45,7 +46,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'data' => $data,
-            'top3' => $data->sortByDesc('total_quantity')->take(3)->values(),
+            'top' => $data->sortByDesc('total_quantity')->take($limit)->values(), // 👈 dynamic
         ]);
     }
     public function analytics()
