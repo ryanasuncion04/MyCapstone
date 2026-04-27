@@ -1,110 +1,232 @@
 <x-layouts.app title="Preorder">
 
-    <div class="max-w-xl mx-auto p-6 space-y-6">
-        <h1 class="text-2xl font-semibold text-center">Preorder Product</h1>
+    <div class="max-w-3xl mx-auto p-6 space-y-6">
 
-        {{-- Image --}}
-        <div class="overflow-hidden rounded shadow-lg border">
+        <!-- Header -->
+        <div class="space-y-2">
+            <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">
+                Place Your Order
+            </h1>
+            <p class="text-zinc-600 dark:text-zinc-400">
+                Order fresh produce directly from the farmer
+            </p>
+        </div>
+
+        <!-- Product Image -->
+        <div class="rounded-xl overflow-hidden shadow-md border border-primary-200 dark:border-primary-900">
             @if ($produce->image)
-                <div class="relative w-full h-60 overflow-hidden">
-                    <img src="{{ Storage::url($produce->image) }}" alt="{{ $produce->product }}"
-                        class="w-full h-full object-cover">
+                <div class="relative w-full h-72 overflow-hidden bg-gradient-to-br from-primary-100 to-cream-100">
+                    <img
+                        src="{{ Storage::url($produce->image) }}"
+                        alt="{{ $produce->product }}"
+                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    >
                 </div>
             @else
-                <div class="w-full h-60 flex items-center justify-center bg-zinc-200 dark:bg-zinc-700">
-                    <span class="text-zinc-500">No Image</span>
+                <div class="w-full h-72 flex items-center justify-center bg-gradient-to-br from-primary-100 to-cream-100">
+                    <svg class="w-24 h-24 text-primary-200" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
+                    </svg>
                 </div>
             @endif
         </div>
 
+        <!-- Product + Order -->
+        <div class="grid md:grid-cols-3 gap-6">
 
+            <!-- Left Column -->
+            <div class="md:col-span-2 space-y-4">
 
+                <!-- Farmer Card -->
+                <div class="bg-green-600 rounded-xl p-5 text-white shadow-md">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h2 class="text-xl font-bold mb-1">
+                                {{ $produce->farmer->name }}
+                            </h2>
 
+                            <p class="text-green-100 flex items-center gap-2 mb-2">
+                                📍 {{ $produce->farmer->barangay }},
+                                {{ $produce->farmer->municipality }}
+                            </p>
 
-        {{-- Product Info --}}
-        <div class="border rounded p-4 space-y-3">
-            {{-- FARMER SECTION --}}
-            <div class="flex items-center justify-between border-b pb-3">
+                            <p class="text-green-100">
+                                ☎️
+                                <a
+                                    href="tel:{{ $produce->farmer->contact }}"
+                                    class="hover:underline"
+                                >
+                                    {{ $produce->farmer->contact }}
+                                </a>
+                            </p>
+                        </div>
 
-                {{-- Farmer Info (LEFT) --}}
-                <div>
-                    <p class="font-medium">{{ $produce->farmer->name }}</p>
-                    <p class="text-sm text-gray-600">
-                        {{ $produce->farmer->contact }}
-                    </p>
-    
-                    <p class="text-s text-gray-500 flex items-center gap-1">
-                        {{ $produce->farmer->barangay }},
-                        {{ $produce->farmer->municipality }}
-                    </p>
-
+                        <button
+                            type="button"
+                            onclick="startChat({{ $produce->user_id }})"
+                            class="bg-white text-green-700 hover:bg-green-50 px-4 py-2 rounded-lg font-semibold shadow-sm whitespace-nowrap"
+                        >
+                            💬 Message Farmer
+                        </button>
+                    </div>
                 </div>
 
-                {{-- Message Button (RIGHT aligned) --}}
-                <button type="button" onclick="startChat({{ $produce->user_id }})"
-                    class="bg-gray-800 text-white text-xs px-3 py-2 rounded hover:bg-gray-900 whitespace-nowrap">
-                    💬 Message
-                </button>
+                <!-- Product Details -->
+                <div class="bg-white dark:bg-zinc-800 rounded-xl border border-primary-200 dark:border-primary-900 p-5 space-y-3">
 
+                    <div>
+                        <h3 class="text-2xl font-bold text-zinc-900 dark:text-white mb-1">
+                            {{ $produce->product }}
+                        </h3>
+
+                        @if ($produce->description)
+                            <p class="text-zinc-600 dark:text-zinc-400">
+                                {{ $produce->description }}
+                            </p>
+                        @endif
+                    </div>
+
+                    <div class="border-t border-primary-200 dark:border-primary-900 pt-3 space-y-2">
+
+                        <div class="flex justify-between items-center">
+                            <span class="text-zinc-600 dark:text-zinc-400">
+                                Availability Period:
+                            </span>
+
+                            <span class="font-medium text-zinc-900 dark:text-white">
+                                {{ \Carbon\Carbon::parse($produce->available_from)->format('M d') }}
+                                -
+                                {{ \Carbon\Carbon::parse($produce->available_until)->format('M d, Y') }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <span class="text-zinc-600 dark:text-zinc-400">
+                                Stock Available:
+                            </span>
+
+                            <span class="font-bold text-green-600 text-lg">
+                                {{ $produce->availableQuantity() }} kg
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
             </div>
-            <p><strong>Product:</strong> {{ $produce->product }}</p>
 
-            <p><strong>Description:</strong> {{ $produce->description ?? '—' }}</p>
+            <!-- Right Sidebar -->
+            <div>
+                <div class="bg-white dark:bg-zinc-800 rounded-xl border border-primary-200 dark:border-primary-900 p-5 sticky top-6 space-y-4">
 
-            <p>
-                <strong>Date Available:</strong><br>
-                <span class="text-sm text-gray-700">
-                    {{ \Carbon\Carbon::parse($produce->available_from)->format('F d, Y') }}
-                    →
-                    {{ \Carbon\Carbon::parse($produce->available_until)->format('F d, Y') }}
-                </span>
-            </p>
-            <p><strong>Price:</strong> ₱{{ number_format($produce->price, 2) }}</p>
+                    <!-- Price -->
+                    <div class="border-b border-primary-200 dark:border-primary-900 pb-4">
+                        <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-1">
+                            Price per kilogram
+                        </p>
 
-            <p><strong>Available Stock:</strong> {{ $produce->availableQuantity() }}</p>
+                        <p class="text-3xl font-bold text-green-700">
+                            ₱{{ number_format($produce->price, 2) }}
+                        </p>
+                    </div>
 
-            {{-- PREORDER FORM --}}
-            <form id="preorderForm" method="POST" action="{{ route('customer.preorders.store', $produce) }}"
-                class="space-y-3 mt-3">
-                @csrf
+                    <!-- Order Form -->
+                    <form
+                        id="preorderForm"
+                        method="POST"
+                        action="{{ route('customer.preorders.store', $produce) }}"
+                        class="space-y-4"
+                    >
+                        @csrf
 
-                <div>
-                    <label class="block text-sm font-medium">Quantity</label>
-                    <input type="number" name="quantity" min="1" max="{{ $produce->availableQuantity() }}"
-                        required class="w-full border rounded px-3 py-2">
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                                Order Quantity (kg)
+                            </label>
+
+                            <input
+                                type="number"
+                                name="quantity"
+                                min="1"
+                                max="{{ $produce->availableQuantity() }}"
+                                value="1"
+                                required
+                                class="w-full px-4 py-2.5 rounded-lg border border-primary-300 dark:border-primary-700 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                            >
+
+                            <p class="text-xs text-zinc-500 mt-1">
+                                Max: {{ $produce->availableQuantity() }} kg available
+                            </p>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="bg-green-50 rounded-lg p-3">
+                            <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-1">
+                                Total Price
+                            </p>
+
+                            <p class="text-2xl font-bold text-green-700">
+                                ₱<span id="totalPrice">
+                                    {{ number_format($produce->price, 2) }}
+                                </span>
+                            </p>
+                        </div>
+
+                        <!-- Submit -->
+                        <button
+                            type="submit"
+                            class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold shadow-md"
+                        >
+                            Place Order
+                        </button>
+
+                    </form>
+
+                    <p class="text-xs text-zinc-500 text-center">
+                        ✓ Secure transaction • Direct from farmer
+                    </p>
+
                 </div>
-            </form>
-        </div>
+            </div>
 
-        {{-- ACTION BUTTONS --}}
-        <div class="flex gap-2">
-
-            {{-- PREORDER --}}
-            <button type="submit" form="preorderForm"
-                class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-                Place Preorder
-            </button>
         </div>
     </div>
 
-    {{-- CHAT FUNCTION --}}
     <script>
-        function startChat(managerId) {
-            fetch("{{ route('chat.start') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({
-                        user_id: managerId
-                    })
-                })
-                .then(res => {
-                    if (res.redirected) {
-                        window.location.href = res.url;
-                    }
+        const pricePerKg = {{ $produce->price }};
+        const quantityInput = document.querySelector('input[name="quantity"]');
+        const totalPriceSpan = document.getElementById('totalPrice');
+
+        if (quantityInput) {
+            quantityInput.addEventListener('input', function () {
+
+                const quantity = parseFloat(this.value) || 1;
+
+                const total = (pricePerKg * quantity).toLocaleString('en-PH', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
                 });
+
+                totalPriceSpan.textContent = total;
+            });
+        }
+
+        function startChat(managerId) {
+
+            fetch("{{ route('chat.start') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    user_id: managerId
+                })
+            })
+            .then(res => {
+                if (res.redirected) {
+                    window.location.href = res.url;
+                }
+            });
         }
     </script>
 

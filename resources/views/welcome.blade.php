@@ -33,39 +33,39 @@
     <div id="map"></div>
 
     {{-- NAVBAR OVERLAY --}}
-    <header class="absolute top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur border-b">
+    <header class="absolute top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-primary-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
-            <div class="flex items-center gap-3">
-                <img src="{{ asset('storage/logo/mylogo.png') }}" class="h-8 w-auto" alt="Logo">
+            <a href="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-primary-600 to-primary-700 flex items-center justify-center shadow-md">
+                    <img src="{{ asset('storage/logo/mylogo.png') }}" class="h-8 w-8 object-contain" alt="Logo">
+                </div>
 
                 <div class="leading-tight">
-                    <p class="font-semibold text-gray-800">
-                        Ilocos Norte Farm Produce GIS
+                    <p class="font-bold text-primary-700">
+                        Farm Connect
                     </p>
-                    <p class="text-xs text-gray-500">
-                        Geographic Information System
+                    <p class="text-xs text-zinc-600">
+                        Agricultural Marketplace
                     </p>
                 </div>
-            </div>
+            </a>
 
             <nav class="flex gap-3">
                 @auth
                     <a href="{{ route('admin.dashboard') }}"
-                        class="px-4 py-2 text-sm rounded-md bg-green-700 text-white hover:bg-green-800">
+                        class="inline-flex items-center gap-2 px-5 py-2 text-sm rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 font-medium transition-all shadow-md hover:shadow-lg">
                         Dashboard
                     </a>
                 @else
                     <a href="{{ route('login') }}"
-                        class="px-4 py-2 text-sm rounded-md border border-green-700 text-green-700 hover:bg-green-50">
+                        class="px-5 py-2 text-sm rounded-lg border-2 border-primary-600 text-primary-600 hover:bg-primary-50 font-medium transition-colors">
                         Login
                     </a>
                     <a href="{{ route('register') }}"
-                        class="px-4 py-2 text-sm rounded-md bg-green-700 text-black hover:bg-green-600">
-                        Create Account
+                        class="px-5 py-2 text-sm rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 font-medium transition-all shadow-md hover:shadow-lg">
+                        Sign Up
                     </a>
-
-
                 @endauth
             </nav>
 
@@ -73,30 +73,58 @@
     </header>
 
     {{-- INFO PANEL OVERLAY --}}
-    <section class="absolute bottom-6 left-6 z-40 max-w-md bg-white rounded-xl shadow-lg p-6">
+    <section class="absolute bottom-8 left-8 z-40 max-w-md">
+        
+        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/50">
 
-        <h1 class="text-xl font-semibold text-gray-800">
-            Farm Produce Monitoring System
-        </h1>
+            <div class="space-y-1 mb-4">
+                <h1 class="text-2xl font-bold text-primary-700">
+                    Farm Connect
+                </h1>
+                <p class="text-sm text-primary-600 font-medium">
+                    Connecting Farmers with Consumers
+                </p>
+            </div>
 
-        <p class="mt-2 text-sm text-gray-600 leading-relaxed">
-            A GIS-based platform for marketing, visualizing agricultural production,
-            spatial distribution, and analytics of farm produce across
-            municipalities and barangays in Ilocos Norte.
-        </p>
+            <p class="text-sm text-zinc-700 leading-relaxed mb-4">
+                Discover fresh produce directly from Ilocos Norte farmers. Browse, order, and support local agriculture.
+            </p>
 
-        <ul class="mt-4 space-y-2 text-sm text-gray-700">
-            <li>• Alternative Farm Produce Marketing</li>
-            <li>• Spatial visualization of produce density</li>
-            <li>• Municipality and barangay-level analytics</li>
-            <li>• Farmer yield and price monitoring</li>
-        </ul>
+            <ul class="space-y-2.5 text-sm text-zinc-700 mb-6">
+                <li class="flex items-center gap-2.5">
+                    <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Fresh produce marketplace
+                </li>
+                <li class="flex items-center gap-2.5">
+                    <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Location-based farm discovery
+                </li>
+                <li class="flex items-center gap-2.5">
+                    <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Direct farmer ratings & reviews
+                </li>
+                <li class="flex items-center gap-2.5">
+                    <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Easy preordering system
+                </li>
+            </ul>
 
-        <div class="mt-4">
             <a href="{{ route('login') }}"
-                class="inline-block px-5 py-2 text-sm rounded-md bg-green-700 text-white hover:bg-green-800">
-                Access the System
+                class="inline-flex items-center gap-2 w-full justify-center px-6 py-3 text-sm rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 font-semibold transition-all shadow-lg hover:shadow-xl">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                Get Started
             </a>
+
         </div>
 
     </section>

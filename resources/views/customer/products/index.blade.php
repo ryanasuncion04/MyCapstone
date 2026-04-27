@@ -1,29 +1,59 @@
 <x-layouts.app :title="__('Farm Produces Ilocos Norte')">
 
-    <div class="p-6 space-y-4">
-        <h1 class="text-2xl font-semibold">
-            All Available Farm Produces
-        </h1>
+    <div class="space-y-6 p-6 max-w-7xl mx-auto">
 
-        <!-- FILTERS -->
-        <div class="flex gap-4 items-center">
-            <select id="produceFilter" class="border rounded-lg p-2 text-sm w-64">
-                <option value="">All Produce</option>
-                @foreach ($products as $product)
-                    <option value="{{ $product }}">{{ $product }}</option>
-                @endforeach
-            </select>
-
-            <select id="municipalityFilter" class="border rounded-lg p-2 text-sm w-64">
-                <option value="">All Municipalities</option>
-            </select>
-
-            <input type="text" id="farmerFilter" placeholder="Search farmer..."
-                class="border rounded-lg p-2 text-sm w-64" />
+        <!-- Header Section -->
+        <div class="space-y-2">
+            <h1 class="text-3xl font-bold text-zinc-900 dark:text-white">
+                Discover Farm Fresh Produces
+            </h1>
+            <p class="text-zinc-600 dark:text-zinc-400">
+                Explore produce directly from local Ilocos Norte farmers. Browse, filter, and place your orders.
+            </p>
         </div>
 
-        <!-- MAP -->
-        <div wire:ignore id="map" class="w-full h-[80vh] rounded-xl border border-zinc-300 dark:border-zinc-700">
+        <!-- Filter Section -->
+        <div
+            class="bg-white dark:bg-zinc-800 rounded-xl border border-primary-200 dark:border-primary-900 p-4 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="produceFilter" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                        Produce Type
+                    </label>
+                    <select id="produceFilter"
+                        class="w-full px-4 py-2.5 rounded-lg border border-primary-300 dark:border-primary-700 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                        <option value="">All Produce</option>
+                        @foreach ($products as $product)
+                            <option value="{{ $product }}">{{ $product }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label for="municipalityFilter"
+                        class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                        Municipality
+                    </label>
+                    <select id="municipalityFilter"
+                        class="w-full px-4 py-2.5 rounded-lg border border-primary-300 dark:border-primary-700 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                        <option value="">All Municipalities</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="farmerFilter" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                        Farmer Name
+                    </label>
+                    <input type="text" id="farmerFilter" placeholder="Search farmer..."
+                        class="w-full px-4 py-2.5 rounded-lg border border-primary-300 dark:border-primary-700 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white placeholder-zinc-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="rounded-xl overflow-hidden shadow-md border border-primary-200 dark:border-primary-900">
+            <div wire:ignore id="map" class="w-full h-[70vh] bg-cream-100 dark:bg-zinc-800">
+            </div>
         </div>
     </div>
 
@@ -57,8 +87,11 @@
 
                 L.circleMarker(userLatLng, {
                     radius: 6,
-                    color: 'blue'
-                }).addTo(map).bindPopup("You are here");
+                    color: '#15803d',
+                    fillColor: '#22c55e',
+                    fillOpacity: 0.8,
+                    weight: 2
+                }).addTo(map).bindPopup("📍 You are here");
             });
 
             fetch('/maps/ilocos-norte.geojson')
@@ -67,9 +100,9 @@
 
                     L.geoJSON(data, {
                         style: {
-                            color: '#2563eb',
+                            color: '#15803d',
                             weight: 2,
-                            fillOpacity: 0.2
+                            fillOpacity: 0.1
                         }
                     }).addTo(map);
 
@@ -222,56 +255,79 @@
                 }
 
                 const popup = `
-                    <div class="w-[320px] text-sm">
+                    <div class="w-full max-w-[300px] text-sm bg-white rounded-xl overflow-hidden">
+                        <!-- HEADER -->
+                        <div class="bg-green-600 p-3 text-white">
+                            <div class="flex items-center gap-3">
+                                <img src="${farmerImage}"
+                                    class="w-14 h-14 rounded-full border-2 border-white object-cover shadow">
 
-                        <div class="flex items-center gap-2 mb-2">
-                            <img src="${farmerImage}"
-                                class="w-12 h-12 rounded-full border object-cover">
+                                <div class="min-w-0">
+                                    <div class="text-base font-semibold truncate">
+                                        ${farmer.name}
+                                    </div>
 
-                            <div>
-                                <strong>${farmer.name}</strong><br>
+                                    <div class="text-xs text-green-100 truncate">
+                                        ${farmer.barangay ?? ''}, ${farmer.municipality ?? ''}
+                                    </div>
 
-                                <span class="text-xs text-gray-500">
-                                    ${farmer.barangay}, ${farmer.municipality}
-                                </span>
-
-                                <div class="text-xs text-yellow-600 mt-1">
-                                    ⭐ ${avgRating} / 5
+                                    <div class="text-xs mt-1 text-yellow-200 font-medium">
+                                        ⭐ ${avgRating} / 5.0
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="max-h-40 overflow-y-auto border rounded">
-                            <table class="w-full text-xs">
-                                <tbody>${rows}</tbody>
-                            </table>
+                        <!-- CONTENT -->
+                        <div class="p-3 space-y-3">
+
+                            <!-- PRODUCTS -->
+                            <div>
+                                <div class="text-xs font-semibold mb-2 text-gray-700">
+                                    Available Products
+                                </div>
+
+                                <div class="max-h-36 overflow-y-auto border rounded-lg overflow-x-auto">
+                                    <table class="w-full min-w-[280px] text-xs">
+                                        <tbody>
+                                            ${rows}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- REVIEWS -->
+                            <div class="border-t pt-2">
+                                <div class="text-xs font-semibold mb-2 text-gray-700">
+                                    Recent Reviews
+                                </div>
+
+                                <div class="max-h-24 overflow-y-auto space-y-1">
+                                    ${reviewsHtml}
+                                </div>
+                            </div>
+
+                            <!-- ROUTE BUTTON -->
+                            <button onclick="routeTo(${farmer.latitude}, ${farmer.longitude})"
+                                class="w-full bg-green-600 hover:bg-green-700 text-white text-xs py-2.5 rounded-lg font-medium">
+                                📍 Route to Farmer
+                            </button>
+
                         </div>
-
-                        <!-- 💬 REVIEWS -->
-                        <div class="mt-2 border-t pt-2">
-                            <div class="text-xs font-semibold mb-1">Recent Reviews</div>
-                            ${reviewsHtml}
-                        </div>
-
-                        <button onclick="routeTo(${farmer.latitude}, ${farmer.longitude})"
-                            class="mt-2 w-full bg-blue-600 text-white text-xs py-2 rounded hover:bg-blue-700">
-                            📍 Route Here
-                        </button>
-
                     </div>
-                `;
+                    `;
 
                 const icon = L.divIcon({
                     className: '',
                     html: `
-                        <div class="relative flex items-center justify-center">
-                            <div class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
-                                <div class="w-10 h-10 rounded-full border-2 border-blue-600 overflow-hidden">
+                        <div class="relative flex items-center justify-center drop-shadow-lg">
+                            <div class="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center ring-2 ring-primary-600">
+                                <div class="w-10 h-10 rounded-full border-2 border-primary-500 overflow-hidden bg-primary-100">
                                     <img src="${products[0].image ? '/storage/' + products[0].image : farmerImage}"
                                          class="w-full h-full object-cover">
                                 </div>
                             </div>
-                            <div class="absolute -bottom-1 w-3 h-3 bg-white rotate-45 border-r border-b border-blue-600"></div>
+                            <div class="absolute -bottom-1 w-3 h-3 bg-white rotate-45 border-r border-b border-primary-600"></div>
                         </div>
                     `,
                     iconSize: [48, 52],
@@ -282,7 +338,12 @@
                         icon
                     })
                     .addTo(markerLayer)
-                    .bindPopup(popup);
+                    .bindPopup(popup, {
+                        maxWidth: 340,
+                        minWidth: 320,
+                        className: 'custom-farmer-popup'
+                    });
+
             });
         }
 
@@ -316,5 +377,23 @@
 
         document.addEventListener('livewire:navigated', initIlocosProductsMap);
     </script>
+
+    <style>
+        .leaflet-popup-content {
+            margin: 0 !important;
+            width: auto !important;
+        }
+
+        .leaflet-popup-content-wrapper {
+            padding: 0 !important;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .custom-farmer-popup .leaflet-popup-tip {
+            background: white;
+        }
+    </style>
+
 
 </x-layouts.app>
