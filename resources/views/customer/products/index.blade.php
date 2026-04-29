@@ -159,20 +159,35 @@
             renderMarkers(filtered);
         }
 
+        // function isValidProduce(p) {
+        //     const now = new Date();
+
+        //     if (!p.available_from || !p.available_until) return false;
+
+        //     const from = new Date(String(p.available_from).replace(' ', 'T'));
+        //     const until = new Date(String(p.available_until).replace(' ', 'T'));
+
+        //     return (
+        //         p.status === 'available' &&
+        //         now >= from &&
+        //         now <= until
+        //     );
+        // }
         function isValidProduce(p) {
             const now = new Date();
 
-            if (!p.available_from || !p.available_until) return false;
+            if (!p.available_until) return true;
 
-            const from = new Date(String(p.available_from).replace(' ', 'T'));
-            const until = new Date(String(p.available_until).replace(' ', 'T'));
-
-            return (
-                p.status === 'available' &&
-                now >= from &&
-                now <= until
+            const until = new Date(
+                String(p.available_until).replace(' ', 'T')
             );
+
+            // show current + future listings
+            // only hide expired products
+            return now <= until;
         }
+
+
 
         function formatDate(dateStr) {
             if (!dateStr) return '—';
@@ -213,14 +228,76 @@
 
                 let rows = '';
 
+                // products.forEach(prod => {
+                //     const preorderUrl = `/customer/preorders/create/${prod.id}`;
+
+                //     rows += `
+                //         <tr class="border-t">
+                //             <td class="px-2 py-1">${prod.product}</td>
+                //             <td class="px-2 py-1 text-center">${prod.quantity} Kgs</td>
+                //             <td class="px-2 py-1 text-right">₱${prod.price}</td>
+                //             <td class="px-2 py-1 text-center">
+                //                 <a href="${preorderUrl}"
+                //                     class="bg-green-600 !text-white text-xs px-3 py-1.5 rounded font-semibold hover:bg-green-700">
+                //                     Preorder
+                //                 </a>
+                //             </td>
+                //         </tr>
+                //     `;
+                // });
                 products.forEach(prod => {
+
                     const preorderUrl = `/customer/preorders/create/${prod.id}`;
+
+                    const now = new Date();
+
+                    const from = new Date(
+                        String(prod.available_from)
+                            .replace(' ','T')
+                    );
+
+                    let statusBadge='';
+
+                    if(now < from){
+
+                        statusBadge=`
+                            <span class="inline-block mt-1
+                                bg-yellow-100 text-yellow-700
+                                text-[10px] px-2 py-1 rounded-full">
+                                Upcoming ${formatDate(prod.available_from)}
+                            </span>
+                        `;
+
+                    }else{
+
+                        statusBadge=`
+                            <span class="inline-block mt-1
+                                bg-green-100 text-green-700
+                                text-[10px] px-2 py-1 rounded-full">
+                                Available
+                            </span>
+                        `;
+                    }
+
 
                     rows += `
                         <tr class="border-t">
-                            <td class="px-2 py-1">${prod.product}</td>
-                            <td class="px-2 py-1 text-center">${prod.quantity} Kgs</td>
-                            <td class="px-2 py-1 text-right">₱${prod.price}</td>
+                            <td class="px-2 py-1">
+                                <div>
+                                    ${prod.product}
+                                </div>
+
+                                ${statusBadge}
+                            </td>
+
+                            <td class="px-2 py-1 text-center">
+                                ${prod.quantity} Kgs
+                            </td>
+
+                            <td class="px-2 py-1 text-right">
+                                ₱${prod.price}
+                            </td>
+
                             <td class="px-2 py-1 text-center">
                                 <a href="${preorderUrl}"
                                     class="bg-green-600 !text-white text-xs px-3 py-1.5 rounded font-semibold hover:bg-green-700">
@@ -230,6 +307,7 @@
                         </tr>
                     `;
                 });
+
 
                 const farmerImage = farmer.image ?
                     `/storage/${farmer.image}` :
